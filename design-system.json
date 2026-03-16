@@ -1,0 +1,551 @@
+{
+  "designSystem": {
+    "metadata": {
+      "name": "Smart Waste Management System Design Language",
+      "version": "1.0.0",
+      "description": "Comprehensive design system for environmental management applications",
+      "primaryTheme": "eco-friendly-professional"
+    },
+    "colorPalette": {
+      "primary": {
+        "main": "#22C55E",
+        "dark": "#15803D",
+        "light": "#BBF7D0",
+        "gradient": "linear-gradient(135deg, #22C55E 0%, #16A34A 100%)",
+        "usage": "Primary actions, brand elements, success states"
+      },
+      "secondary": {
+        "main": "#6366F1",
+        "dark": "#4F46E5",
+        "light": "#E0E7FF",
+        "gradient": "linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)",
+        "usage": "Secondary actions, accent elements"
+      },
+      "neutral": {
+        "white": "#FFFFFF",
+        "gray50": "#F9FAFB",
+        "gray100": "#F3F4F6",
+        "gray200": "#E5E7EB",
+        "gray300": "#D1D5DB",
+        "gray400": "#9CA3AF",
+        "gray500": "#6B7280",
+        "gray600": "#4B5563",
+        "gray700": "#374151",
+        "gray800": "#1F2937",
+        "gray900": "#111827"
+      },
+      "semantic": {
+        "success": "#10B981",
+        "warning": "#F59E0B",
+        "error": "#EF4444",
+        "info": "#3B82F6"
+      }
+    },
+    "elementStyling": {
+      "cards": {
+        "container": {
+          "background": "#FFFFFF",
+          "border": "1px solid #E5E7EB",
+          "borderRadius": "16px",
+          "shadow": "0 4px 20px rgba(0, 0, 0, 0.08)",
+          "hoverShadow": "0 8px 30px rgba(0, 0, 0, 0.12)",
+          "hoverTransform": "translateY(-4px)",
+          "padding": "2rem"
+        },
+        "header": {
+          "background": "transparent",
+          "borderBottom": "1px solid #E5E7EB",
+          "padding": "2rem 2rem 1rem",
+          "titleColor": "#111827",
+          "titleWeight": "600",
+          "titleSize": "1.4rem"
+        },
+        "body": {
+          "background": "transparent",
+          "padding": "2rem",
+          "textColor": "#4B5563"
+        },
+        "statCards": {
+          "background": "#FFFFFF",
+          "border": "1px solid #E5E7EB",
+          "borderRadius": "16px",
+          "shadow": "0 4px 20px rgba(0, 0, 0, 0.08)",
+          "topBorder": "linear-gradient(135deg, #22C55E 0%, #16A34A 100%)",
+          "topBorderHeight": "4px",
+          "padding": "2rem",
+          "hoverTransform": "translateY(-4px)",
+          "hoverShadow": "0 8px 30px rgba(0, 0, 0, 0.12)"
+        }
+      },
+      "buttons": {
+        "primary": {
+          "background": "linear-gradient(135deg, #22C55E 0%, #16A34A 100%)",
+          "color": "#FFFFFF",
+          "border": "none",
+          "borderRadius": "10px",
+          "padding": "12px 24px",
+          "fontSize": "1rem",
+          "fontWeight": "600",
+          "shadow": "0 4px 15px rgba(34, 197, 94, 0.3)",
+          "hover": {
+            "transform": "translateY(-2px)",
+            "shadow": "0 8px 25px rgba(34, 197, 94, 0.4)"
+          },
+          "active": {
+            "transform": "translateY(0)"
+          },
+          "disabled": {
+            "opacity": "0.6",
+            "cursor": "not-allowed"
+          }
+        },
+        "secondary": {
+          "background": "linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)",
+          "color": "#FFFFFF",
+          "border": "none",
+          "borderRadius": "10px",
+          "padding": "12px 24px",
+          "fontSize": "1rem",
+          "fontWeight": "600",
+          "shadow": "0 4px 15px rgba(99, 102, 241, 0.3)",
+          "hover": {
+            "transform": "translateY(-2px)",
+            "shadow": "0 8px 25px rgba(99, 102, 241, 0.4)"
+          }
+        },
+        "ghost": {
+          "background": "transparent",
+          "color": "#6B7280",
+          "border": "1px solid transparent",
+          "borderRadius": "10px",
+          "padding": "8px 12px",
+          "fontSize": "1rem",
+          "fontWeight": "600",
+          "hover": {
+            "background": "#F3F4F6",
+            "color": "#374151",
+            "border": "1px solid #E5E7EB"
+          }
+        },
+        "success": {
+          "background": "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+          "color": "#FFFFFF",
+          "shadow": "0 4px 15px rgba(16, 185, 129, 0.3)",
+          "hover": {
+            "transform": "translateY(-2px)",
+            "shadow": "0 8px 25px rgba(16, 185, 129, 0.4)"
+          }
+        },
+        "warning": {
+          "background": "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+          "color": "#FFFFFF",
+          "shadow": "0 4px 15px rgba(245, 158, 11, 0.3)",
+          "hover": {
+            "transform": "translateY(-2px)",
+            "shadow": "0 8px 25px rgba(245, 158, 11, 0.4)"
+          }
+        },
+        "error": {
+          "background": "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
+          "color": "#FFFFFF",
+          "shadow": "0 4px 15px rgba(239, 68, 68, 0.3)",
+          "hover": {
+            "transform": "translateY(-2px)",
+            "shadow": "0 8px 25px rgba(239, 68, 68, 0.4)"
+          }
+        }
+      },
+      "navigation": {
+        "header": {
+          "background": "#FFFFFF",
+          "borderBottom": "1px solid #E5E7EB",
+          "height": "70px",
+          "shadow": "0 1px 3px rgba(0, 0, 0, 0.1)",
+          "backdropFilter": "blur(10px)"
+        },
+        "brand": {
+          "iconColor": "#22C55E",
+          "textColor": "#111827",
+          "fontSize": "1.25rem",
+          "fontWeight": "700"
+        },
+        "sidebar": {
+          "background": "#FFFFFF",
+          "borderRight": "1px solid #E5E7EB",
+          "width": "280px",
+          "shadow": "2px 0 10px rgba(0, 0, 0, 0.05)"
+        },
+        "navLinks": {
+          "default": {
+            "background": "transparent",
+            "color": "#374151",
+            "borderRadius": "12px",
+            "padding": "14px 20px",
+            "fontWeight": "500",
+            "hover": {
+              "background": "#F3F4F6",
+              "color": "#111827",
+              "transform": "translateX(4px)"
+            }
+          },
+          "active": {
+            "background": "linear-gradient(135deg, #22C55E 0%, #16A34A 100%)",
+            "color": "#FFFFFF",
+            "shadow": "0 4px 15px rgba(34, 197, 94, 0.3)",
+            "hover": {
+              "transform": "translateX(4px)",
+              "shadow": "0 6px 20px rgba(34, 197, 94, 0.4)"
+            }
+          }
+        }
+      },
+      "icons": {
+        "navigation": {
+          "color": "inherit",
+          "size": "20px",
+          "containerWidth": "20px",
+          "textAlign": "center"
+        },
+        "statCards": {
+          "containers": {
+            "primary": {
+              "background": "linear-gradient(135deg, #BBF7D0 0%, rgba(34, 197, 94, 0.2) 100%)",
+              "color": "#15803D",
+              "size": "48px",
+              "borderRadius": "12px"
+            },
+            "secondary": {
+              "background": "linear-gradient(135deg, #DBEAFE 0%, rgba(99, 102, 241, 0.2) 100%)",
+              "color": "#4F46E5",
+              "size": "48px",
+              "borderRadius": "12px"
+            },
+            "warning": {
+              "background": "linear-gradient(135deg, #FEF3C7 0%, rgba(245, 158, 11, 0.2) 100%)",
+              "color": "#D97706",
+              "size": "48px",
+              "borderRadius": "12px"
+            },
+            "success": {
+              "background": "linear-gradient(135deg, #D1FAE5 0%, rgba(16, 185, 129, 0.2) 100%)",
+              "color": "#059669",
+              "size": "48px",
+              "borderRadius": "12px"
+            },
+            "error": {
+              "background": "linear-gradient(135deg, #FEE2E2 0%, rgba(239, 68, 68, 0.2) 100%)",
+              "color": "#DC2626",
+              "size": "48px",
+              "borderRadius": "12px"
+            }
+          }
+        },
+        "buttons": {
+          "color": "inherit",
+          "marginRight": "0.5rem",
+          "fontSize": "inherit"
+        }
+      },
+      "forms": {
+        "controls": {
+          "background": "#FFFFFF",
+          "border": "2px solid #E5E7EB",
+          "borderRadius": "12px",
+          "padding": "14px 18px",
+          "fontSize": "1rem",
+          "color": "#111827",
+          "focus": {
+            "borderColor": "#22C55E",
+            "shadow": "0 0 0 4px rgba(34, 197, 94, 0.1)",
+            "transform": "translateY(-1px)"
+          },
+          "hover": {
+            "borderColor": "#D1D5DB"
+          }
+        },
+        "labels": {
+          "color": "#374151",
+          "fontSize": "0.875rem",
+          "fontWeight": "600",
+          "marginBottom": "0.5rem"
+        }
+      },
+      "tables": {
+        "container": {
+          "background": "#FFFFFF",
+          "border": "1px solid #E5E7EB",
+          "borderRadius": "12px",
+          "overflow": "hidden"
+        },
+        "header": {
+          "background": "#F9FAFB",
+          "color": "#111827",
+          "fontSize": "0.85rem",
+          "fontWeight": "600",
+          "textTransform": "uppercase",
+          "letterSpacing": "0.05em",
+          "padding": "16px 20px"
+        },
+        "cells": {
+          "background": "transparent",
+          "color": "#4B5563",
+          "fontSize": "0.9rem",
+          "padding": "16px 20px",
+          "borderBottom": "1px solid #E5E7EB"
+        },
+        "rows": {
+          "hover": {
+            "background": "#F9FAFB"
+          }
+        }
+      },
+      "badges": {
+        "success": {
+          "background": "linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)",
+          "color": "#065F46",
+          "borderRadius": "20px",
+          "padding": "6px 12px",
+          "fontSize": "0.75rem",
+          "fontWeight": "600",
+          "textTransform": "uppercase",
+          "letterSpacing": "0.05em"
+        },
+        "warning": {
+          "background": "linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)",
+          "color": "#92400E",
+          "borderRadius": "20px",
+          "padding": "6px 12px",
+          "fontSize": "0.75rem",
+          "fontWeight": "600",
+          "textTransform": "uppercase",
+          "letterSpacing": "0.05em"
+        },
+        "error": {
+          "background": "linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%)",
+          "color": "#991B1B",
+          "borderRadius": "20px",
+          "padding": "6px 12px",
+          "fontSize": "0.75rem",
+          "fontWeight": "600",
+          "textTransform": "uppercase",
+          "letterSpacing": "0.05em"
+        },
+        "info": {
+          "background": "linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%)",
+          "color": "#1E40AF",
+          "borderRadius": "20px",
+          "padding": "6px 12px",
+          "fontSize": "0.75rem",
+          "fontWeight": "600",
+          "textTransform": "uppercase",
+          "letterSpacing": "0.05em"
+        }
+      },
+      "modals": {
+        "overlay": {
+          "background": "rgba(0, 0, 0, 0.6)",
+          "backdropFilter": "blur(4px)"
+        },
+        "container": {
+          "background": "#FFFFFF",
+          "borderRadius": "20px",
+          "shadow": "0 25px 80px rgba(0, 0, 0, 0.3)",
+          "maxWidth": "600px",
+          "maxHeight": "90vh"
+        },
+        "header": {
+          "background": "transparent",
+          "borderBottom": "1px solid #E5E7EB",
+          "padding": "2rem 2.5rem 1rem",
+          "titleColor": "#111827",
+          "titleSize": "1.5rem",
+          "titleWeight": "600"
+        },
+        "body": {
+          "background": "transparent",
+          "padding": "2.5rem",
+          "color": "#4B5563"
+        },
+        "closeButton": {
+          "background": "transparent",
+          "color": "#6B7280",
+          "fontSize": "1.5rem",
+          "padding": "8px",
+          "borderRadius": "8px",
+          "hover": {
+            "background": "#F3F4F6",
+            "color": "#374151"
+          }
+        }
+      },
+      "notifications": {
+        "container": {
+          "background": "#FFFFFF",
+          "borderRadius": "12px",
+          "shadow": "0 8px 30px rgba(0, 0, 0, 0.15)",
+          "padding": "1.5rem 2rem",
+          "backdropFilter": "blur(10px)"
+        },
+        "success": {
+          "borderLeft": "4px solid #10B981",
+          "iconColor": "#10B981"
+        },
+        "warning": {
+          "borderLeft": "4px solid #F59E0B",
+          "iconColor": "#F59E0B"
+        },
+        "error": {
+          "borderLeft": "4px solid #EF4444",
+          "iconColor": "#EF4444"
+        },
+        "info": {
+          "borderLeft": "4px solid #22C55E",
+          "iconColor": "#22C55E"
+        },
+        "title": {
+          "color": "#111827",
+          "fontSize": "1rem",
+          "fontWeight": "600"
+        },
+        "message": {
+          "color": "#6B7280",
+          "fontSize": "0.9rem",
+          "lineHeight": "1.5"
+        }
+      },
+      "progressBars": {
+        "container": {
+          "background": "#E5E7EB",
+          "borderRadius": "10px",
+          "height": "10px",
+          "overflow": "hidden"
+        },
+        "fill": {
+          "background": "linear-gradient(90deg, #22C55E 0%, #10B981 100%)",
+          "borderRadius": "10px",
+          "height": "100%",
+          "transition": "width 0.5s ease"
+        }
+      }
+    },
+    "typography": {
+      "fontFamily": "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      "headings": {
+        "h1": {
+          "fontSize": "2.5rem",
+          "fontWeight": "700",
+          "color": "#111827",
+          "lineHeight": "1.2",
+          "gradient": "linear-gradient(135deg, #22C55E 0%, #6366F1 100%)",
+          "backgroundClip": "text",
+          "textFillColor": "transparent"
+        },
+        "h2": {
+          "fontSize": "2rem",
+          "fontWeight": "600",
+          "color": "#111827",
+          "lineHeight": "1.3"
+        },
+        "h3": {
+          "fontSize": "1.5rem",
+          "fontWeight": "600",
+          "color": "#111827",
+          "lineHeight": "1.4"
+        },
+        "h4": {
+          "fontSize": "1.25rem",
+          "fontWeight": "600",
+          "color": "#111827",
+          "lineHeight": "1.4"
+        }
+      },
+      "body": {
+        "fontSize": "1rem",
+        "fontWeight": "400",
+        "color": "#4B5563",
+        "lineHeight": "1.6"
+      },
+      "small": {
+        "fontSize": "0.875rem",
+        "fontWeight": "400",
+        "color": "#6B7280",
+        "lineHeight": "1.5"
+      },
+      "caption": {
+        "fontSize": "0.75rem",
+        "fontWeight": "500",
+        "color": "#9CA3AF",
+        "lineHeight": "1.4"
+      }
+    },
+    "spacing": {
+      "baseUnit": "8px",
+      "scale": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "16px",
+        "lg": "24px",
+        "xl": "32px",
+        "2xl": "48px",
+        "3xl": "64px"
+      }
+    },
+    "breakpoints": {
+      "mobile": "480px",
+      "tablet": "768px",
+      "desktop": "1024px",
+      "wide": "1200px"
+    },
+    "animations": {
+      "transitions": {
+        "fast": "0.2s ease",
+        "normal": "0.3s ease",
+        "slow": "0.5s ease"
+      },
+      "transforms": {
+        "hover": "translateY(-2px)",
+        "active": "translateY(0)",
+        "slideIn": "translateX(0)"
+      }
+    },
+    "doNotRules": {
+      "gradients": [
+        "DO NOT apply card gradients to icons - icons use solid colors within gradient containers",
+        "DO NOT apply button gradients to text elements - text uses solid colors",
+        "DO NOT apply stat card gradients to the entire card - only apply to top border accent"
+      ],
+      "colors": [
+        "DO NOT use primary button colors for secondary elements",
+        "DO NOT apply icon container colors to icon fills",
+        "DO NOT use navigation colors for content text"
+      ],
+      "shadows": [
+        "DO NOT apply card shadows to individual text elements",
+        "DO NOT use button shadows on form controls",
+        "DO NOT apply modal shadows to notification components"
+      ],
+      "spacing": [
+        "DO NOT use card padding for button padding",
+        "DO NOT apply modal padding to table cells",
+        "DO NOT use header padding for form elements"
+      ]
+    },
+    "contextualRules": {
+      "cards": {
+        "statCards": "Use gradient top border accent, white background, and colored icon containers",
+        "contentCards": "Use solid white background with subtle shadows, no gradient accents",
+        "actionCards": "Include hover transforms and shadow increases"
+      },
+      "buttons": {
+        "primary": "Use for main actions, apply gradient background with shadow",
+        "secondary": "Use for alternative actions, different gradient than primary",
+        "ghost": "Use for subtle actions, transparent background with hover states"
+      },
+      "icons": {
+        "navigation": "Inherit color from parent, no background containers",
+        "statCards": "Use colored gradient containers with contrasting icon colors",
+        "buttons": "Inherit button text color, no separate styling"
+      }
+    }
+  }
+}

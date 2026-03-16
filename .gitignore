@@ -1,0 +1,33 @@
+node_modules
+.env
+.env.local
+.env.*.local
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+scripts/*.json
+.worktrees/
+
+# Build outputs
+dist/
+dev-dist/
+
+# Test artifacts
+test-results/
+playwright-report/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Misc generated files
+build_error_*.txt
+build_log.txt
+push_error.txt
+push_out.txt
+reflog.txt
+
+# Tool directories
+.bolt/
+app/
+js/
+styles/

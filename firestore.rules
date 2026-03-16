@@ -1,0 +1,164 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ──────────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isSuperadmin() {
+      return isAuthenticated() && (getUserRole() == 'Superadmin' || getUserRole() == 'superadmin');
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (getUserRole() == 'Admin' || getUserRole() == 'admin' || isSuperadmin());
+    }
+
+    function isZonalAdmin() {
+      return isAuthenticated() && (getUserRole() == 'Zonal-Admin' || getUserRole() == 'zonal-admin' || isAdmin());
+    }
+
+    function isWorker() {
+      return isAuthenticated() && (getUserRole() == 'Worker' || getUserRole() == 'worker' || isAdmin());
+    }
+
+    // ── `users` collection ────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Any signed-in user can read profiles (needed for worker lookups, etc.)
+      allow read: if isAuthenticated();
+      // Users create their own profile on signup
+      allow create: if isOwner(userId);
+      // Users update their own profile; Superadmins can update any (role changes)
+      allow update: if isOwner(userId) || isSuperadmin();
+      // Only superadmins can delete user profiles
+      allow delete: if isSuperadmin();
+    }
+
+    // ── `cities` collection ─────────────────────────────────────────────────
+    match /cities/{cityId} {
+      allow read:   if isAuthenticated();
+      allow create: if isSuperadmin();
+      allow update: if isSuperadmin();
+      allow delete: if isSuperadmin();
+    }
+
+    // ── `zones` collection ─────────────────────────────────────────────────
+    match /zones/{zoneId} {
+      allow read:   if isAuthenticated();
+      allow create: if isSuperadmin();
+      allow update: if isSuperadmin();
+      allow delete: if isSuperadmin();
+    }
+
+    // ── `wards` collection ─────────────────────────────────────────────────
+    match /wards/{wardId} {
+      allow read:   if isAuthenticated();
+      allow create: if isSuperadmin();
+      allow update: if isSuperadmin();
+      allow delete: if isSuperadmin();
+    }
+
+    // ── `complaints` collection ───────────────────────────────────────────────
+    match /complaints/{complaintId} {
+      allow read:   if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // ── `assignments` collection ──────────────────────────────────────────────
+    match /assignments/{assignmentId} {
+      allow read:   if isAuthenticated();
+      allow create: if isZonalAdmin();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // ── `completion_evidence` collection ─────────────────────────────────────
+    match /completion_evidence/{evidenceId} {
+      allow read:   if isAuthenticated();
+      allow create: if isAuthenticated();
+      // Workers/admins can update evidence (e.g. re-upload photo)
+      allow update: if isWorker();
+      allow delete: if isAdmin();
+    }
+
+    // ── `ratings` collection ──────────────────────────────────────────────────
+    match /ratings/{ratingId} {
+      allow read:   if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+    }
+
+    // ── `inventory` collection ────────────────────────────────────────────────
+    // Managed exclusively by Superadmin (read for Admins too for reporting)
+    match /inventory/{itemId} {
+      allow read:   if isAuthenticated();
+      allow create: if isSuperadmin();
+      allow update: if isSuperadmin();
+      allow delete: if isSuperadmin();
+    }
+
+    // ── `attendance` collection ───────────────────────────────────────────────
+    // Workers record their own attendance; admins/superadmins can read all
+    match /attendance/{recordId} {
+      allow read:   if isAuthenticated();
+      allow create: if isAuthenticated();
+      // Only the owning worker or an admin can update an attendance record
+      allow update: if isAuthenticated() &&
+                       (resource.data.workerId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ── `collection_bookings` collection ─────────────────────────────────────
+    // Citizens create bookings; admins/workers can update (assign, complete)
+    match /collection_bookings/{bookingId} {
+      allow read:   if isAuthenticated();
+      allow create: if isAuthenticated();
+      // Citizens can update their own booking; workers/admins can update any
+      allow update: if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid || isWorker());
+      allow delete: if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // ── `salary_records` collection ───────────────────────────────────────────
+    // Written by admins; workers can read their own record
+    match /salary_records/{recordId} {
+      allow read:   if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isSuperadmin();
+    }
+
+    // ── `training` collection ─────────────────────────────────────────────────
+    // Users manage their own training progress
+    match /training/{userId} {
+      allow read:   if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ── `training_materials` collection ──────────────────────────────────────
+    // Uploaded by superadmins; readable by all authenticated users
+    match /training_materials/{materialId} {
+      allow read:   if isAuthenticated();
+      allow create: if isSuperadmin();
+      allow update: if isSuperadmin();
+      allow delete: if isSuperadmin();
+    }
+
+  }
+}

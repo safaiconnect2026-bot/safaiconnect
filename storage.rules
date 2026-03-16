@@ -1,0 +1,22 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Anyone authenticated can view images
+    match /{allPaths=**} {
+      allow read: if request.auth != null;
+    }
+
+    // Workers can upload evidence photos (max 10 MB)
+    match /evidence/{imageId} {
+      allow write: if request.auth != null
+                   && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // Citizens can upload complaint photos (max 10 MB)
+    match /complaints/{imageId} {
+      allow write: if request.auth != null
+                   && request.resource.size < 10 * 1024 * 1024;
+    }
+  }
+}
