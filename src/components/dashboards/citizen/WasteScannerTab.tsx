@@ -299,13 +299,32 @@ export default function WasteScannerTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageBase64, mimeType }),
       });
-      if (!res.ok) throw new Error(`API error ${res.status}`);
+
+      if (!res.ok) {
+        let errMsg = `Server error (${res.status})`;
+        try {
+          const errBody = await res.json();
+          if (errBody?.error) errMsg = errBody.error;
+        } catch { /* ignore */ }
+        throw new Error(errMsg);
+      }
 
       setLoadingStep('Enriching results…');
       const data: WasteAnalysisResult = await res.json();
       setResult(data);
     } catch (err: any) {
-      setError('Could not classify this image. Please try again with a clearer photo.');
+      const msg = err?.message ?? '';
+      if (msg.includes('OPENAI_API_KEY')) {
+        setError('AI service is not configured. Please contact support.');
+      } else if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
+        setError('Network error — check your internet connection and try again.');
+      } else if (msg.includes('500') || msg.includes('classification failed')) {
+        setError('AI classification failed. Try a clearer, well-lit photo focused on the waste item.');
+      } else if (msg) {
+        setError(`Could not classify: ${msg}`);
+      } else {
+        setError('Could not classify this image. Try a clearer, well-lit photo.');
+      }
       console.error('[WasteScanner]', err);
     } finally {
       setLoading(false);

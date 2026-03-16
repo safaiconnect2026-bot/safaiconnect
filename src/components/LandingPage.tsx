@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     ArrowRight, BarChart3, Users, Shield, Menu, X, Globe,
     Recycle, Download, MapPin, Bell, CheckCircle, Zap, Star,
-    ChevronDown, Smartphone, Lock, TrendingUp, Mail, Phone,
+    Smartphone, Lock, TrendingUp, Mail, Phone,
     Building2, Target, Award, Send,
 } from 'lucide-react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
@@ -36,6 +36,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
     const [statsVisible, setStatsVisible] = useState(false);
     const statsRef = useRef<HTMLDivElement>(null);
     const { isInstallable, installApp, isStandalone } = usePWAInstall();
+    // Detect Capacitor native WebView so Install App button is hidden inside the Android app
+    const isNativeApp = !!(window as any).Capacitor || window.location.protocol === 'capacitor:';
     const { t } = useLanguage();
     const { info: toastInfo, success: toastSuccess } = useToast();
 
@@ -176,7 +178,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
                     {/* CTA */}
                     <div className="hidden md:flex items-center gap-3">
-                        {!isStandalone && (
+                        {!isStandalone && !isNativeApp && (
                         <button onClick={handleInstall} className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-emerald-600 hover:bg-emerald-50 rounded-full transition-all">
                             <Download className="w-4 h-4" /> {t('nav_install')}
                         </button>
@@ -210,7 +212,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             </button>
                         ))}
                         <div className="h-px bg-gray-100 my-1" />
-                        {!isStandalone && (
+                        {!isStandalone && !isNativeApp && (
                         <button onClick={handleInstall} className="w-full py-3 text-emerald-600 font-semibold rounded-xl bg-emerald-50 flex items-center justify-center gap-2">
                             <Download className="w-5 h-5" /> {t('hero_install_btn')}
                         </button>
@@ -263,7 +265,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         >
                             {t('hero_get_started_btn')} <ArrowRight className="w-5 h-5" />
                         </button>
-                        {!isStandalone && <button
+                        {!isStandalone && !isNativeApp && <button
                             onClick={handleInstall}
                             className="w-full sm:w-auto px-10 py-4 bg-white/80 backdrop-blur-sm text-emerald-700 border-2 border-emerald-100 rounded-full font-bold text-lg hover:border-emerald-300 hover:bg-white transition-all flex items-center justify-center gap-2.5 shadow-sm hover:shadow-lg"
                         >
@@ -285,14 +287,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     </div>
                 </div>
 
-                {/* Scroll indicator */}
-                <button
-                    onClick={() => scrollTo('impact')}
-                    className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-gray-400 hover:text-emerald-600 transition-colors"
-                >
-                    <span className="text-xs font-semibold tracking-wide">{t('hero_scroll')}</span>
-                    <ChevronDown className="w-5 h-5 animate-bounce" />
-                </button>
             </section>
 
             {/* ─── STATS ─── */}
@@ -558,7 +552,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         >
                             {t('cta_get_started')} <ArrowRight className="w-6 h-6" />
                         </button>
-                        {!isStandalone && (
+                        {!isStandalone && !isNativeApp && (
                         <button
                             onClick={handleInstall}
                             className="px-10 py-5 bg-white/10 text-white border border-white/20 rounded-full font-bold text-xl hover:bg-white/20 transition-all flex items-center justify-center gap-2.5 backdrop-blur-sm"

@@ -213,7 +213,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Stage 1 — GPT-4o multimodal scene understanding + item detection
     const response = await client.chat.completions.create({
       model: 'gpt-4o',
-      max_tokens: 900,
+      max_tokens: 1800,
       messages: [
         {
           role: 'user',
@@ -233,7 +233,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const text = response.choices[0]?.message?.content ?? '';
     const clean = text.replace(/```json?|```/g, '').trim();
-    const parsed = JSON.parse(clean) as WasteAnalysisResult;
+
+    let parsed: WasteAnalysisResult;
+    try {
+      parsed = JSON.parse(clean) as WasteAnalysisResult;
+    } catch {
+      // Attempt to recover a truncated JSON by extracting whatever was parsed
+      console.error('[classify-waste] JSON parse failed, raw text:', clean.slice(0, 300));
+      // Return a minimal valid response so the UI doesn't crash
+      return res.status(200).json(buildDefaultResult({
+        sceneDescription: 'Scene analysed — partial result due to response length.',
+        context: 'other',
+        imageQuality: { exposure: 'normal', noisy: false, quality: 'acceptable' },
+        items: [],
+        unknownObjects: [],
+      }));
+    }
 
     // Sanitise items array
     parsed.items = (parsed.items ?? []).map((item) => {
