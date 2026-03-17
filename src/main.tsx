@@ -9,6 +9,7 @@ import { ToastProvider } from './contexts/ToastContext';
 import ErrorBoundary from './components/ErrorBoundary.tsx';
 import { registerSW } from 'virtual:pwa-register';
 
+
 // Register the PWA service worker so the app is actually installable
 const updateSW = registerSW({
   onNeedRefresh() {
