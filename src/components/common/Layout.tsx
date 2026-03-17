@@ -14,11 +14,12 @@ interface LayoutProps {
     onClick?: () => void;
   }>;
   onProfileClick?: () => void;
+  onReportIssue?: () => void;
 }
 
 import { useLanguage } from '../../contexts/LanguageContext';
 
-const Layout: React.FC<LayoutProps> = ({ user, onLogout, children, sidebarItems, onProfileClick }) => {
+const Layout: React.FC<LayoutProps> = ({ user, onLogout, children, sidebarItems, onProfileClick, onReportIssue }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -39,6 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ user, onLogout, children, sidebarItems,
         user={user}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         onProfileClick={onProfileClick}
+        onReportIssue={onReportIssue}
       />
       <div className="flex">
         <Sidebar

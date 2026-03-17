@@ -10,6 +10,7 @@ interface HeaderProps {
   user: User;
   toggleSidebar?: () => void;
   onProfileClick?: () => void;
+  onReportIssue?: () => void;
 }
 
 // ─── Notification shape ───────────────────────────────────────────────────────
@@ -286,7 +287,7 @@ const NotificationsDropdown: React.FC<{ user: User; onClose: () => void }> = ({ 
 };
 
 // ─── Header ───────────────────────────────────────────────────────────────────
-const Header: React.FC<HeaderProps> = ({ user, toggleSidebar, onProfileClick }) => {
+const Header: React.FC<HeaderProps> = ({ user, toggleSidebar, onProfileClick, onReportIssue }) => {
   const { t } = useLanguage();
   const [notifOpen, setNotifOpen] = useState(false);
   const [unreadCount, setUnreadCount]   = useState(0);
@@ -367,6 +368,15 @@ const Header: React.FC<HeaderProps> = ({ user, toggleSidebar, onProfileClick }) 
 
           {/* Right: language + bell + user */}
           <div className="flex items-center gap-2 sm:gap-4 ml-auto">
+            {onReportIssue && (
+              <button
+                onClick={onReportIssue}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+              >
+                <AlertTriangle className="w-4 h-4" />
+                <span className="hidden sm:inline">{t('nav_report')}</span>
+              </button>
+            )}
             <LanguageSwitcher />
 
             {/* Bell with notification badge */}

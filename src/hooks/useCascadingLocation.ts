@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -38,6 +38,10 @@ export function useCascadingLocation() {
   const [selectedZoneId, setSelectedZoneId] = useState('');
   const [selectedWardId, setSelectedWardId] = useState('');
 
+  // Pending IDs queued by applyAutoDetected — applied once Firestore data arrives
+  const pendingZoneIdRef = useRef<string | null>(null);
+  const pendingWardIdRef = useRef<string | null>(null);
+
   // Load all cities once
   useEffect(() => {
     const unsub = onSnapshot(
@@ -76,6 +80,17 @@ export function useCascadingLocation() {
       list.sort((a, b) => a.name.localeCompare(b.name));
       setZones(list);
       setLoadingZones(false);
+      // Apply pending zone (set by applyAutoDetected) once data is ready
+      if (pendingZoneIdRef.current) {
+        const pending = pendingZoneIdRef.current;
+        pendingZoneIdRef.current = null;
+        if (list.some((z) => z.id === pending)) {
+          setSelectedZoneId(pending);
+        } else {
+          // Zone not found in this city — discard stale pending ward too
+          pendingWardIdRef.current = null;
+        }
+      }
     });
     return () => unsub();
   }, [selectedCityId]);
@@ -97,15 +112,35 @@ export function useCascadingLocation() {
       list.sort((a, b) => a.name.localeCompare(b.name));
       setWards(list);
       setLoadingWards(false);
+      // Apply pending ward (set by applyAutoDetected) once data is ready
+      if (pendingWardIdRef.current) {
+        const pending = pendingWardIdRef.current;
+        pendingWardIdRef.current = null;
+        if (list.some((w) => w.id === pending)) {
+          setSelectedWardId(pending);
+        }
+      }
     });
     return () => unsub();
   }, [selectedZoneId]);
+
+  /**
+   * Set all three location IDs atomically after GPS auto-detection.
+   * Zone and ward are applied as soon as their Firestore data arrives,
+   * so there is no fragile setTimeout race condition.
+   */
+  const applyAutoDetected = useCallback((cityId: string, zoneId: string, wardId: string) => {
+    pendingZoneIdRef.current = zoneId;
+    pendingWardIdRef.current = wardId;
+    setSelectedCityId(cityId);
+  }, []);
 
   return {
     cities, zones, wards,
     loadingCities, loadingZones, loadingWards,
     selectedCityId, selectedZoneId, selectedWardId,
     setSelectedCityId, setSelectedZoneId, setSelectedWardId,
+    applyAutoDetected,
   };
 }
 

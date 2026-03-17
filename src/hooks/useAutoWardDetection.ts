@@ -140,7 +140,10 @@ export function useAutoWardDetection() {
           }
         }
 
-        if (nearest) {
+        // Only accept coordinate match if ward is within 50 km — beyond that,
+      // coordinates in Firestore are likely from a different city entirely.
+      const MAX_COORD_DISTANCE_KM = 50;
+      if (nearest && minDist <= MAX_COORD_DISTANCE_KM) {
           const zone = zones.get(nearest.zoneId);
           const city = cities.get(nearest.cityId);
           const result: DetectedLocation = {

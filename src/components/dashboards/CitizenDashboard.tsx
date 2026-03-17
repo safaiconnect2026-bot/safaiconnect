@@ -125,13 +125,7 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
   React.useEffect(() => {
     if (wardDetection.detected && !manualWardMode) {
       const r = wardDetection.detected;
-      locationSelector.setSelectedCityId(r.cityId);
-      setTimeout(() => {
-        locationSelector.setSelectedZoneId(r.zoneId);
-        setTimeout(() => {
-          locationSelector.setSelectedWardId(r.wardId);
-        }, 300);
-      }, 300);
+      locationSelector.applyAutoDetected(r.cityId, r.zoneId, r.wardId);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wardDetection.detected]);
@@ -326,12 +320,14 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
       }
 
       let address = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      let cityHint = '';
       try {
         const res = await fetch(
           `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
         );
         const data = await res.json();
         if (data.display_name) address = data.display_name;
+        cityHint = data.address?.city || data.address?.town || data.address?.state_district || '';
       } catch { /* fallback to coords */ }
 
       setPhotos((prev) =>
@@ -343,8 +339,8 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
       );
 
       // Auto-detect ward from photo GPS if not yet detected via the GPS button
-      if (wardDetection.loaded && !wardDetection.detected && !locationSelector.selectedWardId) {
-        wardDetection.detectWard(latitude, longitude);
+      if (!wardDetection.detected && !locationSelector.selectedWardId) {
+        wardDetection.detectWard(latitude, longitude, cityHint);
       }
     } catch (e) {
       console.warn("GPS capture failed", e);
@@ -430,13 +426,7 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
       // Auto-detect ward/zone/city from GPS coordinates
       const result = wardDetection.detectWard(latitude, longitude, cityHint);
       if (result) {
-        locationSelector.setSelectedCityId(result.cityId);
-        setTimeout(() => {
-          locationSelector.setSelectedZoneId(result.zoneId);
-          setTimeout(() => {
-            locationSelector.setSelectedWardId(result.wardId);
-          }, 300);
-        }, 300);
+        locationSelector.applyAutoDetected(result.cityId, result.zoneId, result.wardId);
         setManualWardMode(false);
       }
     } catch (e) {
@@ -595,7 +585,6 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
     { icon: <ScanLine className="w-5 h-5" />, label: t('nav_waste_scanner'), active: activeTab === 'scanner', onClick: () => setActiveTab('scanner'), tourId: 'nav-scanner' },
     { icon: <MapPin className="w-5 h-5" />, label: t('nav_recycling_locator'), active: activeTab === 'locator', onClick: () => setActiveTab('locator') },
     { icon: <GraduationCap className="w-5 h-5" />, label: t('nav_education'), active: activeTab === 'training', onClick: () => setActiveTab('training') },
-    { icon: <AlertTriangle className="w-5 h-5" />, label: t('nav_report'), active: activeTab === 'report', onClick: () => setActiveTab('report'), tourId: 'nav-report' },
     { icon: <History className="w-5 h-5" />, label: t('nav_track'), active: activeTab === 'track', onClick: () => setActiveTab('track'), tourId: 'nav-track' },
     { icon: <Trophy className="w-5 h-5" />, label: t('nav_rewards'), active: activeTab === 'rewards', onClick: () => setActiveTab('rewards'), tourId: 'nav-rewards' },
     { icon: <Settings className="w-5 h-5" />, label: t('settings'), active: activeTab === 'settings', onClick: () => setActiveTab('settings') },
@@ -1305,7 +1294,7 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
   };
 
   return (
-    <Layout user={user} onLogout={onLogout} sidebarItems={sidebarItems} onProfileClick={() => setActiveTab('profile')}>
+    <Layout user={user} onLogout={onLogout} sidebarItems={sidebarItems} onProfileClick={() => setActiveTab('profile')} onReportIssue={() => setActiveTab('report')}>
       {/* First-time onboarding tour — renders nothing, triggers Shepherd.js */}
       {userProfile && <CitizenTour userProfile={userProfile} />}
       {renderContent()}
