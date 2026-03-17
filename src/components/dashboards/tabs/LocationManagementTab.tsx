@@ -373,6 +373,7 @@ const LocationManagementTab: React.FC = () => {
                   type="text"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && formName.trim() && !saving) handleSave(); }}
                   className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                   placeholder={`Enter ${modal.type} name`}
                   autoFocus
@@ -385,6 +386,7 @@ const LocationManagementTab: React.FC = () => {
                     type="text"
                     value={formState}
                     onChange={(e) => setFormState(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && formName.trim() && !saving) handleSave(); }}
                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                     placeholder="Enter state name"
                   />

@@ -39,8 +39,8 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       // Users create their own profile on signup
       allow create: if isOwner(userId);
-      // Users update their own profile; Superadmins can update any (role changes)
-      allow update: if isOwner(userId) || isSuperadmin();
+      // Users update their own profile; Admins can update worker profiles; Superadmins can update any (role changes)
+      allow update: if isOwner(userId) || isAdmin();
       // Only superadmins can delete user profiles
       allow delete: if isSuperadmin();
     }
@@ -56,16 +56,16 @@ service cloud.firestore {
     // ── `zones` collection ─────────────────────────────────────────────────
     match /zones/{zoneId} {
       allow read:   if isAuthenticated();
-      allow create: if isSuperadmin();
-      allow update: if isSuperadmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
       allow delete: if isSuperadmin();
     }
 
     // ── `wards` collection ─────────────────────────────────────────────────
     match /wards/{wardId} {
       allow read:   if isAuthenticated();
-      allow create: if isSuperadmin();
-      allow update: if isSuperadmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
       allow delete: if isSuperadmin();
     }
 
