@@ -33,7 +33,11 @@ interface WorkerStats {
   inProgress: number;
 }
 
-const WorkersTab: React.FC = () => {
+interface WorkersTabProps {
+  cityId?: string;
+}
+
+const WorkersTab: React.FC<WorkersTabProps> = ({ cityId }) => {
   const { t } = useLanguage();
   const [workers, setWorkers] = useState<WorkerData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,8 +53,9 @@ const WorkersTab: React.FC = () => {
   const [todayAttendance, setTodayAttendance] = useState<Record<string, AttendanceStatus>>({});
 
   useEffect(() => {
-    // Query for both capitalized and lowercase role values to catch all workers
-    const q1 = query(collection(db, 'users'), where('role', 'in', ['Worker', 'worker']));
+    const constraints: any[] = [where('role', 'in', ['Worker', 'worker'])];
+    if (cityId) constraints.push(where('cityId', '==', cityId));
+    const q1 = query(collection(db, 'users'), ...constraints);
     const unsubscribe = onSnapshot(q1, (snapshot) => {
       const fetched: WorkerData[] = [];
       snapshot.forEach((docSnap) => {
@@ -60,7 +65,7 @@ const WorkersTab: React.FC = () => {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [cityId]);
 
   // Real-time listener for today's attendance
   useEffect(() => {

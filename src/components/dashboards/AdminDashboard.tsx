@@ -53,24 +53,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
     { icon: <UserCircle className="w-5 h-5" />, label: t('profile'), active: activeTab === 'profile', onClick: () => setActiveTab('profile') },
   ];
 
+  const cityId = user.cityId || userProfile?.cityId || '';
+
   const renderContent = () => {
     switch (activeTab) {
       case 'overview':
-        return <OverviewTab onNavigate={setActiveTab} />;
+        return <OverviewTab onNavigate={setActiveTab} cityId={cityId} />;
       case 'complaints':
         return <ComplaintsTab />;
       case 'workers':
-        return <WorkersTab />;
+        return <WorkersTab cityId={cityId} />;
       case 'verification':
         return <VerificationTab />;
       case 'training':
         return <TrainingSystem user={user} />;
       case 'salary': return <SalaryTab onNavigate={setActiveTab} />;
       case 'collection_bookings': return <CollectionBookingsTab />;
-      case 'areas': return <ManageAreasTab />;
+      case 'areas': return <ManageAreasTab cityId={cityId} />;
       case 'settings': return <SettingsTab user={user} />;
       case 'profile': return <ProfilePage user={user} />;
-      default: return <OverviewTab onNavigate={setActiveTab} />;
+      default: return <OverviewTab onNavigate={setActiveTab} cityId={cityId} />;
     }
   };
 

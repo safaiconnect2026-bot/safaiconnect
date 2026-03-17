@@ -6,6 +6,7 @@ import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, signInW
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { Capacitor } from '@capacitor/core';
 import { auth, db, googleProvider } from '../lib/firebase';
+import { useCascadingLocation } from '../hooks/useCascadingLocation';
 
 interface SignupPageProps {
     onSignupSuccess: (email: string) => void;
@@ -21,6 +22,37 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onNavigateToLo
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const { t } = useLanguage();
+    const location = useCascadingLocation();
+
+    // Roles that require location selection during signup
+    const needsCity = ['admin', 'zonal-admin', 'worker'].includes(role);
+    const needsZone = ['zonal-admin', 'worker'].includes(role);
+    const needsWard = role === 'worker';
+
+    // Build location payload to save with the user profile
+    const getLocationPayload = () => {
+        if (!needsCity) return {};
+        const cityName = location.cities.find(c => c.id === location.selectedCityId)?.name || '';
+        const zoneName = location.zones.find(z => z.id === location.selectedZoneId)?.name || '';
+        const wardName = location.wards.find(w => w.id === location.selectedWardId)?.name || '';
+        return {
+            cityId: location.selectedCityId || '',
+            cityName,
+            ...(needsZone && { zoneId: location.selectedZoneId || '', zoneName }),
+            ...(needsWard && { wardId: location.selectedWardId || '', wardName }),
+        };
+    };
+
+    const locationAvailable = location.cities.length > 0;
+
+    const validateLocation = () => {
+        // Skip location validation if cities couldn't be loaded (rules not yet deployed)
+        if (!locationAvailable) return true;
+        if (needsCity && !location.selectedCityId) { setError('Please select your city.'); return false; }
+        if (needsZone && !location.selectedZoneId) { setError('Please select your zone.'); return false; }
+        if (needsWard && !location.selectedWardId) { setError('Please select your ward.'); return false; }
+        return true;
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -29,6 +61,11 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onNavigateToLo
 
         if (!role) {
             setError('Please select a role');
+            setIsLoading(false);
+            return;
+        }
+
+        if (!validateLocation()) {
             setIsLoading(false);
             return;
         }
@@ -70,7 +107,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onNavigateToLo
                 preferences: {
                     notifications: true,
                     language: 'en'
-                }
+                },
+                ...getLocationPayload(),
             });
 
             // 4. Notify success only after Firestore write completes
@@ -311,6 +349,57 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess, onNavigateToLo
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Location selectors — shown for roles that need them */}
+                            {needsCity && (
+                                location.loadingCities ? (
+                                    <p className="text-xs text-gray-400 py-1">Loading locations…</p>
+                                ) : !locationAvailable ? (
+                                    <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                                        Location (city/zone/ward) will be assigned to your account by the Superadmin after signup.
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">City</label>
+                                            <select
+                                                value={location.selectedCityId}
+                                                onChange={e => location.setSelectedCityId(e.target.value)}
+                                                className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none appearance-none text-gray-900"
+                                            >
+                                                <option value="">Select your city…</option>
+                                                {location.cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                            </select>
+                                        </div>
+                                        {needsZone && location.selectedCityId && (
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Zone</label>
+                                                <select
+                                                    value={location.selectedZoneId}
+                                                    onChange={e => location.setSelectedZoneId(e.target.value)}
+                                                    className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none appearance-none text-gray-900"
+                                                >
+                                                    <option value="">Select your zone…</option>
+                                                    {location.zones.map(z => <option key={z.id} value={z.id}>{z.name}</option>)}
+                                                </select>
+                                            </div>
+                                        )}
+                                        {needsWard && location.selectedZoneId && (
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Ward</label>
+                                                <select
+                                                    value={location.selectedWardId}
+                                                    onChange={e => location.setSelectedWardId(e.target.value)}
+                                                    className="block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none appearance-none text-gray-900"
+                                                >
+                                                    <option value="">Select your ward…</option>
+                                                    {location.wards.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
+                                                </select>
+                                            </div>
+                                        )}
+                                    </>
+                                )
+                            )}
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">{t('full_name')}</label>

@@ -37,80 +37,49 @@ const ZonalOverviewTab: React.FC<ZonalOverviewTabProps> = ({ zoneId, onNavigate 
       where('role', 'in', ['Worker', 'worker']),
       where('zoneId', '==', zoneId),
     );
-
     const unsub1 = onSnapshot(workersQ, (snap) => {
-      const workerIds: string[] = [];
-      snap.forEach((d) => workerIds.push(d.id));
       setStats((prev) => ({
         ...prev,
         totalWorkers: snap.size,
         activeWorkers: snap.docs.filter((d) => d.data().status !== 'inactive').length,
       }));
-
-      // Listen to assignments for these workers' complaints
-      if (workerIds.length === 0) {
-        setStats((prev) => ({
-          ...prev,
-          totalComplaints: 0,
-          pendingComplaints: 0,
-          inProgress: 0,
-          resolvedComplaints: 0,
-          loading: false,
-        }));
-        setPriorityActions([]);
-        return;
-      }
-
-      // Assignments for zone workers
-      const batchSize = 30; // Firestore 'in' limit
-      const batches = [];
-      for (let i = 0; i < workerIds.length; i += batchSize) {
-        batches.push(workerIds.slice(i, i + batchSize));
-      }
-
-      // Also listen to all complaints to find un-assigned ones + zone-assigned ones
-      const complaintsUnsub = onSnapshot(collection(db, 'complaints'), (cSnap) => {
-        let total = 0;
-        let pending = 0;
-        let inProg = 0;
-        let resolved = 0;
-        const priority: any[] = [];
-
-        cSnap.forEach((d) => {
-          const data = d.data();
-          // Include complaints assigned to zone workers OR with matching zoneId
-          const isZoneComplaint =
-            data.zoneId === zoneId ||
-            data.assignedWorkerIds?.some((wid: string) => workerIds.includes(wid));
-
-          if (!isZoneComplaint) return;
-
-          total++;
-          const status = (data.status || '').toUpperCase();
-          if (status === 'SUBMITTED' || status === 'PENDING') pending++;
-          else if (status === 'IN_PROGRESS' || status === 'ASSIGNED') inProg++;
-          else if (status === 'RESOLVED' || status === 'COMPLETED') resolved++;
-
-          if ((status === 'SUBMITTED' || status === 'PENDING') && priority.length < 5) {
-            priority.push({ id: d.id, ...data });
-          }
-        });
-
-        setStats((prev) => ({
-          ...prev,
-          totalComplaints: total,
-          pendingComplaints: pending,
-          inProgress: inProg,
-          resolvedComplaints: resolved,
-          loading: false,
-        }));
-        setPriorityActions(priority);
-      });
-
-      return () => complaintsUnsub();
     });
 
-    return () => unsub1();
+    // Complaints scoped to this zone — matches Firestore security rules
+    const complaintsQ = query(
+      collection(db, 'complaints'),
+      where('zoneId', '==', zoneId),
+    );
+    const unsub2 = onSnapshot(complaintsQ, (cSnap) => {
+      let pending = 0;
+      let inProg = 0;
+      let resolved = 0;
+      const priority: any[] = [];
+
+      cSnap.forEach((d) => {
+        const data = d.data();
+        const status = (data.status || '').toUpperCase();
+        if (status === 'SUBMITTED' || status === 'PENDING') pending++;
+        else if (status === 'IN_PROGRESS' || status === 'ASSIGNED') inProg++;
+        else if (status === 'RESOLVED' || status === 'COMPLETED') resolved++;
+
+        if ((status === 'SUBMITTED' || status === 'PENDING') && priority.length < 5) {
+          priority.push({ id: d.id, ...data });
+        }
+      });
+
+      setStats((prev) => ({
+        ...prev,
+        totalComplaints: cSnap.size,
+        pendingComplaints: pending,
+        inProgress: inProg,
+        resolvedComplaints: resolved,
+        loading: false,
+      }));
+      setPriorityActions(priority);
+    });
+
+    return () => { unsub1(); unsub2(); };
   }, [zoneId]);
 
   if (stats.loading) {

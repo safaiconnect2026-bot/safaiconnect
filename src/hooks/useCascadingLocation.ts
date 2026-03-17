@@ -40,13 +40,20 @@ export function useCascadingLocation() {
 
   // Load all cities once
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'cities'), (snap) => {
-      const list: City[] = [];
-      snap.forEach((d) => list.push({ id: d.id, ...d.data() } as City));
-      list.sort((a, b) => a.name.localeCompare(b.name));
-      setCities(list);
-      setLoadingCities(false);
-    });
+    const unsub = onSnapshot(
+      collection(db, 'cities'),
+      (snap) => {
+        const list: City[] = [];
+        snap.forEach((d) => list.push({ id: d.id, ...d.data() } as City));
+        list.sort((a, b) => a.name.localeCompare(b.name));
+        setCities(list);
+        setLoadingCities(false);
+      },
+      () => {
+        // Permission denied (e.g. unauthenticated on signup page) — fail gracefully
+        setLoadingCities(false);
+      }
+    );
     return () => unsub();
   }, []);
 

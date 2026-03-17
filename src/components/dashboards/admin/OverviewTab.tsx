@@ -10,6 +10,7 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface OverviewTabProps {
   onNavigate: (tab: string) => void;
+  cityId?: string;
 }
 
 interface PriorityAction {
@@ -20,7 +21,7 @@ interface PriorityAction {
   createdAt: any;
 }
 
-const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
+const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate, cityId }) => {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
     totalComplaints:    0,
@@ -36,8 +37,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
   const [priorityActions, setPriorityActions] = useState<PriorityAction[]>([]);
 
   useEffect(() => {
-    // ── 1. All complaints ──────────────────────────────────────────────────
-    const unsubscribeComplaints = onSnapshot(query(collection(db, 'complaints')), (snapshot) => {
+    // ── 1. Complaints scoped to admin's city ──────────────────────────────
+    const complaintsQuery = cityId
+      ? query(collection(db, 'complaints'), where('cityId', '==', cityId))
+      : query(collection(db, 'complaints'));
+    const unsubscribeComplaints = onSnapshot(complaintsQuery, (snapshot) => {
       const all = snapshot.docs;
       const data = all.map(d => d.data());
       const pending    = data.filter(d => ['SUBMITTED', 'UNDER_REVIEW', 'ASSIGNED'].includes(d.status)).length;
@@ -59,9 +63,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
       setPriorityActions(actions);
     });
 
-    // ── 2. Workers count ───────────────────────────────────────────────────
+    // ── 2. Workers count scoped to admin's city ────────────────────────────
+    const workersQuery = cityId
+      ? query(collection(db, 'users'), where('role', 'in', ['Worker', 'worker']), where('cityId', '==', cityId))
+      : query(collection(db, 'users'), where('role', 'in', ['Worker', 'worker']));
     const unsubscribeWorkers = onSnapshot(
-      query(collection(db, 'users'), where('role', 'in', ['Worker', 'worker'])),
+      workersQuery,
       (snapshot) => setStats(prev => ({ ...prev, totalWorkers: snapshot.docs.length, loading: false }))
     );
 
@@ -88,7 +95,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
     );
 
     return () => { unsubscribeComplaints(); unsubscribeWorkers(); unsubscribeAttendance(); unsubscribeCitizens(); unsubscribeBookings(); };
-  }, []);
+  }, [cityId]);
 
   const resolutionRate = stats.totalComplaints > 0
     ? Math.round((stats.resolvedComplaints / stats.totalComplaints) * 100)

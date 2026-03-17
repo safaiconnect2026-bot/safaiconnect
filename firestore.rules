@@ -58,24 +58,27 @@ service cloud.firestore {
     }
 
     // ── `cities` collection ─────────────────────────────────────────────────
+    // Public read: needed for signup location selection (unauthenticated users)
     match /cities/{cityId} {
-      allow read:   if isAuthenticated();
+      allow read:   if true;
       allow create: if isSuperadmin();
       allow update: if isSuperadmin();
       allow delete: if isSuperadmin();
     }
 
     // ── `zones` collection ─────────────────────────────────────────────────
+    // Public read: needed for signup location selection (unauthenticated users)
     match /zones/{zoneId} {
-      allow read:   if isAuthenticated();
+      allow read:   if true;
       allow create: if isAdmin();
       allow update: if isAdmin();
       allow delete: if isSuperadmin();
     }
 
     // ── `wards` collection ─────────────────────────────────────────────────
+    // Public read: needed for signup location selection (unauthenticated users)
     match /wards/{wardId} {
-      allow read:   if isAuthenticated();
+      allow read:   if true;
       allow create: if isAdmin();
       allow update: if isAdmin();
       allow delete: if isSuperadmin();

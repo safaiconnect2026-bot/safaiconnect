@@ -11,6 +11,7 @@ import { useNotifications } from '../../../contexts/NotificationContext';
 import { sendPushNotification } from '../../../lib/fcm';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useScopedComplaints } from '../../../hooks/useScopedComplaints';
+import { useAuth } from '../../../contexts/AuthContext';
 
 interface Complaint {
     id: string;
@@ -50,6 +51,7 @@ const ComplaintsTab: React.FC = () => {
     const { t } = useLanguage();
     const { error: toastError } = useToast();
     const { addNotification } = useNotifications();
+    const { userProfile } = useAuth();
     const { complaints: rawComplaints, loading } = useScopedComplaints();
     const complaints = rawComplaints as Complaint[];
     const [workers, setWorkers] = useState<Worker[]>([]);
@@ -70,10 +72,12 @@ const ComplaintsTab: React.FC = () => {
     const [isDeleting, setIsDeleting] = useState(false);
 
 
-    // Fetch workers once
+    // Fetch workers scoped to admin's city
     useEffect(() => {
         const fetchWorkers = async () => {
-            const q = query(collection(db, 'users'), where('role', 'in', ['Worker', 'worker']));
+            const constraints: any[] = [where('role', 'in', ['Worker', 'worker'])];
+            if (userProfile?.cityId) constraints.push(where('cityId', '==', userProfile.cityId));
+            const q = query(collection(db, 'users'), ...constraints);
             const snap = await getDocs(q);
             const fetchedWorkers: Worker[] = [];
             snap.forEach(docSnap => {
@@ -86,7 +90,7 @@ const ComplaintsTab: React.FC = () => {
             setWorkers(fetchedWorkers);
         };
         fetchWorkers();
-    }, []);
+    }, [userProfile?.cityId]);
 
     const toggleDropdown = (id: string) => {
         setActiveDropdown(activeDropdown === id ? null : id);
