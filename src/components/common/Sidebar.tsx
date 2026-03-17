@@ -7,6 +7,8 @@ interface SidebarItem {
   label: string;
   active?: boolean;
   onClick?: () => void;
+  /** Shepherd.js tour anchor — rendered as data-tour="<tourId>" on the button */
+  tourId?: string;
 }
 
 interface SidebarProps {
@@ -82,6 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     // but since items are navigation, we should close it.
                     onClose();
                   }}
+                  {...(item.tourId ? { 'data-tour': item.tourId } : {})}
                   className={[
                     'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200',
                     isCollapsed ? 'lg:justify-center lg:px-0' : '',

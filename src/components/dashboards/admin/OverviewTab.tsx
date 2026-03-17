@@ -6,6 +6,7 @@ import {
 import StatCard from '../../common/StatCard';
 import { collection, query, onSnapshot, where } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface OverviewTabProps {
   onNavigate: (tab: string) => void;
@@ -20,6 +21,7 @@ interface PriorityAction {
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
+  const { t } = useLanguage();
   const [stats, setStats] = useState({
     totalComplaints:    0,
     pendingComplaints:  0,
@@ -108,42 +110,42 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
       {/* Header */}
       <div className="flex justify-between items-center flex-wrap gap-3">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Dashboard Overview</h2>
-          <p className="text-gray-600">Real-time overview of system performance and key metrics</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">{t('overview')}</h2>
+          <p className="text-gray-600">{t('real_time_analytics')}</p>
         </div>
         <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium flex items-center gap-1 shadow-sm">
-          <Activity className="w-4 h-4" /> System Live
+          <Activity className="w-4 h-4" /> {t('system_live')}
         </span>
       </div>
 
       {/* ── 4-card metrics row ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Complaints"
+          title={t('total_complaints')}
           value={stats.loading ? '...' : stats.totalComplaints.toString()}
           icon={<AlertTriangle className="w-6 h-6" />}
           trend={{ value: 'All time', isPositive: true }}
           color="blue"
         />
         <StatCard
-          title="Pending Review"
+          title={t('pending_review')}
           value={stats.loading ? '...' : stats.pendingComplaints.toString()}
           icon={<Clock className="w-6 h-6" />}
-          trend={{ value: pendingRate > 0 ? `${pendingRate}% of total` : 'None pending', isPositive: pendingRate === 0 }}
+          trend={{ value: pendingRate > 0 ? `${pendingRate}%` : t('all_caught_up'), isPositive: pendingRate === 0 }}
           color="orange"
         />
         <StatCard
-          title="Resolved"
+          title={t('resolved_complaints')}
           value={stats.loading ? '...' : stats.resolvedComplaints.toString()}
           icon={<CheckCircle className="w-6 h-6" />}
-          trend={{ value: `${resolutionRate}% rate`, isPositive: resolutionRate >= 50 }}
+          trend={{ value: `${resolutionRate}%`, isPositive: resolutionRate >= 50 }}
           color="green"
         />
         <StatCard
-          title="Active Workers"
+          title={t('active_workers')}
           value={stats.loading ? '...' : stats.activeWorkers.toString()}
           icon={<Users className="w-6 h-6" />}
-          trend={{ value: `${stats.totalWorkers} registered`, isPositive: stats.activeWorkers > 0 }}
+          trend={{ value: `${stats.totalWorkers} ${t('workers')}`, isPositive: stats.activeWorkers > 0 }}
           color="purple"
         />
       </div>
@@ -153,13 +155,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-gray-900">Priority Actions</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('priority_actions')}</h3>
               {priorityActions.length > 0 && (
                 <span className="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{priorityActions.length} new</span>
               )}
             </div>
             <button onClick={() => onNavigate('complaints')} className="text-sm text-emerald-600 hover:text-emerald-800 font-medium">
-              Manage All →
+              {t('view_all')} →
             </button>
           </div>
           <div className="divide-y divide-gray-100 min-h-[200px]">
@@ -170,8 +172,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
             ) : priorityActions.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-12 text-gray-500">
                 <CheckCircle className="w-12 h-12 mb-3 text-green-200" />
-                <p className="font-medium">All caught up!</p>
-                <p className="text-sm mt-1">No new complaints awaiting review.</p>
+                <p className="font-medium">{t('all_caught_up')}</p>
+                <p className="text-sm mt-1">{t('no_pending_complaints')}</p>
               </div>
             ) : (
               priorityActions.map((item) => (
@@ -187,7 +189,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
                     onClick={() => onNavigate('complaints')}
                     className="ml-3 flex-shrink-0 px-3 py-1.5 text-xs border border-emerald-100 bg-emerald-50 rounded-lg hover:bg-emerald-100 text-emerald-700 transition-colors font-semibold"
                   >
-                    Review
+                    {t('review_complaint')}
                   </button>
                 </div>
               ))
@@ -197,12 +199,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
 
         {/* ── City Vitals ───────────────────────────────────────────────────── */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-5">
-          <h3 className="text-lg font-semibold text-gray-900">City Vitals</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('city_vitals')}</h3>
 
           {/* Resolution Rate */}
           <div>
             <div className="flex justify-between text-sm mb-1.5">
-              <span className="text-gray-600 font-medium">Resolution Rate</span>
+              <span className="text-gray-600 font-medium">{t('resolution_rate')}</span>
               <span className={`font-bold ${resolutionRate >= 70 ? 'text-green-600' : resolutionRate >= 40 ? 'text-yellow-600' : 'text-red-500'}`}>
                 {stats.loading ? '—' : `${resolutionRate}%`}
               </span>
@@ -213,13 +215,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
                 style={{ width: `${stats.loading ? 0 : resolutionRate}%` }}
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1">{stats.resolvedComplaints} of {stats.totalComplaints} complaints resolved</p>
+            <p className="text-xs text-gray-400 mt-1">{stats.resolvedComplaints} / {stats.totalComplaints}</p>
           </div>
 
           {/* Pending Load */}
           <div>
             <div className="flex justify-between text-sm mb-1.5">
-              <span className="text-gray-600 font-medium">Pending Load</span>
+              <span className="text-gray-600 font-medium">{t('pending_load')}</span>
               <span className={`font-bold ${pendingRate < 30 ? 'text-green-600' : pendingRate < 60 ? 'text-yellow-600' : 'text-red-500'}`}>
                 {stats.loading ? '—' : `${pendingRate}%`}
               </span>
@@ -230,13 +232,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
                 style={{ width: `${stats.loading ? 0 : pendingRate}%` }}
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1">{stats.pendingComplaints} awaiting action</p>
+            <p className="text-xs text-gray-400 mt-1">{stats.pendingComplaints} {t('pending_complaints')}</p>
           </div>
 
           {/* In Progress */}
           <div>
             <div className="flex justify-between text-sm mb-1.5">
-              <span className="text-gray-600 font-medium">In Progress</span>
+              <span className="text-gray-600 font-medium">{t('status_in_progress')}</span>
               <span className="font-bold text-blue-600">{stats.loading ? '—' : stats.inProgress}</span>
             </div>
             <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -245,16 +247,16 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
                 style={{ width: `${stats.totalComplaints > 0 ? Math.round((stats.inProgress / stats.totalComplaints) * 100) : 0}%` }}
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1">Workers currently on site</p>
+            <p className="text-xs text-gray-400 mt-1">{t('workers_on_site')}</p>
           </div>
 
           {/* Quick Nav Pills */}
           <div className="pt-3 border-t border-gray-100 grid grid-cols-2 gap-2">
             {[
-              { label: 'Workers', icon: <UserCheck className="w-3.5 h-3.5" />, tab: 'workers', val: stats.activeWorkers },
-              { label: 'Citizens', icon: <Users className="w-3.5 h-3.5" />, tab: 'complaints', val: stats.citizens },
-              { label: 'Verify', icon: <CheckCircle className="w-3.5 h-3.5" />, tab: 'verification', val: null },
-              { label: 'Payroll', icon: <TrendingUp className="w-3.5 h-3.5" />, tab: 'salary', val: null },
+              { label: t('workers'), icon: <UserCheck className="w-3.5 h-3.5" />, tab: 'workers', val: stats.activeWorkers },
+              { label: t('complaints'), icon: <Users className="w-3.5 h-3.5" />, tab: 'complaints', val: stats.citizens },
+              { label: t('work_verification'), icon: <CheckCircle className="w-3.5 h-3.5" />, tab: 'verification', val: null },
+              { label: t('salary'), icon: <TrendingUp className="w-3.5 h-3.5" />, tab: 'salary', val: null },
             ].map(item => (
               <button
                 key={item.tab}

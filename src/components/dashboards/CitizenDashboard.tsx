@@ -38,6 +38,8 @@ import ProfilePage from '../common/ProfilePage';
 import SettingsTab from './tabs/SettingsTab';
 import WasteScannerTab from './citizen/WasteScannerTab';
 import RecyclingLocatorTab from './citizen/RecyclingLocatorTab';
+import CitizenTour from '../common/CitizenTour';
+import OnboardingChecklist from '../common/OnboardingChecklist';
 import { User } from '../../App';
 import StatCard from '../common/StatCard';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -589,12 +591,12 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
     { icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav_home'), active: activeTab === 'home', onClick: () => setActiveTab('home') },
     ...(isChampion ? [{ icon: <Trophy className="w-5 h-5 text-yellow-500" />, label: t('champion_hub'), active: activeTab === 'champion', onClick: () => setActiveTab('champion') }] : []),
     { icon: <Truck className="w-5 h-5" />, label: 'Book Collection', active: activeTab === 'collection', onClick: () => setActiveTab('collection') },
-    { icon: <ScanLine className="w-5 h-5" />, label: 'Waste Scanner', active: activeTab === 'scanner', onClick: () => setActiveTab('scanner') },
+    { icon: <ScanLine className="w-5 h-5" />, label: 'Waste Scanner', active: activeTab === 'scanner', onClick: () => setActiveTab('scanner'), tourId: 'nav-scanner' },
     { icon: <MapPin className="w-5 h-5" />, label: 'Recycling Locator', active: activeTab === 'locator', onClick: () => setActiveTab('locator') },
     { icon: <GraduationCap className="w-5 h-5" />, label: t('nav_education'), active: activeTab === 'training', onClick: () => setActiveTab('training') },
-    { icon: <AlertTriangle className="w-5 h-5" />, label: t('nav_report'), active: activeTab === 'report', onClick: () => setActiveTab('report') },
-    { icon: <History className="w-5 h-5" />, label: t('nav_track'), active: activeTab === 'track', onClick: () => setActiveTab('track') },
-    { icon: <Trophy className="w-5 h-5" />, label: t('nav_rewards'), active: activeTab === 'rewards', onClick: () => setActiveTab('rewards') },
+    { icon: <AlertTriangle className="w-5 h-5" />, label: t('nav_report'), active: activeTab === 'report', onClick: () => setActiveTab('report'), tourId: 'nav-report' },
+    { icon: <History className="w-5 h-5" />, label: t('nav_track'), active: activeTab === 'track', onClick: () => setActiveTab('track'), tourId: 'nav-track' },
+    { icon: <Trophy className="w-5 h-5" />, label: t('nav_rewards'), active: activeTab === 'rewards', onClick: () => setActiveTab('rewards'), tourId: 'nav-rewards' },
     { icon: <Settings className="w-5 h-5" />, label: t('settings'), active: activeTab === 'settings', onClick: () => setActiveTab('settings') },
     { icon: <UserCircle className="w-5 h-5" />, label: t('profile'), active: activeTab === 'profile', onClick: () => setActiveTab('profile') },
   ];
@@ -1303,7 +1305,10 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
 
   return (
     <Layout user={user} onLogout={onLogout} sidebarItems={sidebarItems} onProfileClick={() => setActiveTab('profile')}>
+      {/* First-time onboarding tour — renders nothing, triggers Shepherd.js */}
+      {userProfile && <CitizenTour userProfile={userProfile} />}
       {renderContent()}
+      <OnboardingChecklist userId={user.id} role={isChampion ? 'green-champion' : 'citizen'} />
     </Layout>
   );
 };

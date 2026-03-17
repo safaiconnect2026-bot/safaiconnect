@@ -11,6 +11,7 @@ import {
 import { db } from '../../../lib/firebase';
 import { useToast } from '../../../contexts/ToastContext';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface VerificationEntry {
     assignmentId: string;
@@ -35,6 +36,7 @@ interface VerificationEntry {
 }
 
 const VerificationTab: React.FC = () => {
+    const { t } = useLanguage();
     const { error: toastError } = useToast();
     const { userProfile } = useAuth();
     const [entries, setEntries] = useState<VerificationEntry[]>([]);
@@ -185,33 +187,33 @@ const VerificationTab: React.FC = () => {
     return (
         <div className="space-y-8 relative">
             <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">Final Verification (Admin Approval)</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">{t('work_verification')}</h2>
                 <p className="text-gray-600">Review zonal-approved work completions — both zonal and admin approval required</p>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
-                    title="Pending Review"
+                    title={t('pending_review')}
                     value={loading ? '...' : entries.length.toString()}
                     icon={<Camera className="w-6 h-6" />}
                     color="yellow"
                 />
                 <StatCard
-                    title="Approved"
+                    title={t('approve')}
                     value={approvedCount.toString()}
                     icon={<CheckCircle className="w-6 h-6" />}
                     trend={{ value: 'Resolved', isPositive: true }}
                     color="green"
                 />
                 <StatCard
-                    title="Rejected"
+                    title={t('reject')}
                     value={rejectedCount.toString()}
                     icon={<AlertCircle className="w-6 h-6" />}
                     color="red"
                 />
                 <StatCard
-                    title="Approval Rate"
+                    title={t('approval_rate')}
                     value={`${verificationRate}%`}
                     icon={<TrendingUp className="w-6 h-6" />}
                     trend={{ value: 'Live', isPositive: true }}
@@ -222,9 +224,9 @@ const VerificationTab: React.FC = () => {
             {/* Table */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-gray-900">Pending Verifications</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('pending_verifications')}</h3>
                     <span className="text-sm text-gray-500">
-                        {loading ? 'Loading...' : `${entries.length} awaiting review`}
+                        {loading ? t('loading') : `${entries.length} awaiting review`}
                     </span>
                 </div>
 
@@ -238,7 +240,7 @@ const VerificationTab: React.FC = () => {
                             <CheckCircle className="w-10 h-10 text-green-400" />
                         </div>
                         <p className="text-xl font-bold text-gray-800">All Caught Up!</p>
-                        <p className="text-sm text-gray-500 mt-1">No pending verifications at this time.</p>
+                        <p className="text-sm text-gray-500 mt-1">{t('no_pending_verifications')}</p>
                     </div>
                 ) : (
                     <div className="divide-y divide-gray-100">
@@ -314,7 +316,7 @@ const VerificationTab: React.FC = () => {
                                         onClick={() => { setSelectedEntry(entry); setIsModalOpen(true); }}
                                         className="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
                                     >
-                                        View Details
+                                        {t('details')}
                                     </button>
                                     <button
                                         onClick={() => handleApprove(entry)}
@@ -325,14 +327,14 @@ const VerificationTab: React.FC = () => {
                                             ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                             : <CheckCircle className="w-3.5 h-3.5" />
                                         }
-                                        Approve
+                                        {t('approve')}
                                     </button>
                                     <button
                                         onClick={() => handleReject(entry)}
                                         disabled={reviewing === entry.assignmentId}
                                         className="flex-1 sm:flex-none px-4 py-2 text-sm font-semibold text-red-700 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-60"
                                     >
-                                        Reject
+                                        {t('reject')}
                                     </button>
                                 </div>
                             </div>
@@ -347,7 +349,7 @@ const VerificationTab: React.FC = () => {
                     <div className="bg-white rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 flex-shrink-0">
                             <div>
-                                <h3 className="font-bold text-gray-900 text-lg">Verification Review</h3>
+                                <h3 className="font-bold text-gray-900 text-lg">{t('review_verification')}</h3>
                                 <p className="text-sm text-gray-500">{selectedEntry.complaintTitle}</p>
                             </div>
                             <button
@@ -390,7 +392,7 @@ const VerificationTab: React.FC = () => {
                                     <p className="font-semibold text-gray-900">{formatTime(selectedEntry.completedAt)}</p>
                                 </div>
                                 <div className="col-span-2">
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Location</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{t('address')}</p>
                                     <div className="flex items-start gap-1.5">
                                         <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
                                         <p className="font-medium text-gray-900">{selectedEntry.complaintLocation}</p>
@@ -437,7 +439,7 @@ const VerificationTab: React.FC = () => {
                                 disabled={reviewing !== null}
                                 className="px-5 py-2.5 text-sm font-semibold text-red-700 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 disabled:opacity-50 transition-colors"
                             >
-                                Reject & Reassign
+                                {t('reject_reassign')}
                             </button>
                             <button
                                 onClick={() => handleApprove(selectedEntry)}
@@ -445,7 +447,7 @@ const VerificationTab: React.FC = () => {
                                 className="px-5 py-2.5 text-sm font-bold text-white bg-green-600 rounded-xl hover:bg-green-700 disabled:opacity-50 flex items-center gap-2 transition-colors"
                             >
                                 {reviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                                Final Approve & Resolve
+                                {t('approve_resolve')}
                             </button>
                         </div>
                     </div>

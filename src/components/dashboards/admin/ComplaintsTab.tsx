@@ -9,6 +9,7 @@ import { db } from '../../../lib/firebase';
 import { useToast } from '../../../contexts/ToastContext';
 import { useNotifications } from '../../../contexts/NotificationContext';
 import { sendPushNotification } from '../../../lib/fcm';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface Complaint {
     id: string;
@@ -45,6 +46,7 @@ interface Evidence {
 }
 
 const ComplaintsTab: React.FC = () => {
+    const { t } = useLanguage();
     const { error: toastError } = useToast();
     const { addNotification } = useNotifications();
     const [complaints, setComplaints] = useState<Complaint[]>([]);
@@ -299,34 +301,34 @@ const ComplaintsTab: React.FC = () => {
     return (
         <div className="space-y-8 animate-fade-in relative">
             <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">Complaint Management</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">{t('complaints')}</h2>
                 <p className="text-gray-600">Monitor and manage citizen complaints</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
-                    title="Total Complaints"
+                    title={t('total_complaints')}
                     value={complaints.length.toString()}
                     icon={<ClipboardList className="w-6 h-6" />}
                     trend={{ value: "Live", isPositive: true }}
                     color="blue"
                 />
                 <StatCard
-                    title="Resolved"
+                    title={t('resolved_complaints')}
                     value={resolvedCount.toString()}
                     icon={<CheckCircle className="w-6 h-6" />}
                     trend={{ value: "Live", isPositive: true }}
                     color="green"
                 />
                 <StatCard
-                    title="Pending / Review"
+                    title={t('pending_complaints')}
                     value={pendingCount.toString()}
                     icon={<AlertCircle className="w-6 h-6" />}
                     trend={{ value: "Live", isPositive: false }}
                     color="yellow"
                 />
                 <StatCard
-                    title="Total Workers"
+                    title={t('total_workers')}
                     value={workers.length.toString()}
                     icon={<UserPlus className="w-6 h-6" />}
                     trend={{ value: "Live", isPositive: true }}
@@ -346,19 +348,19 @@ const ComplaintsTab: React.FC = () => {
                 ) : complaints.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-12 text-gray-500">
                         <ClipboardList className="w-12 h-12 mb-3 text-gray-300" />
-                        <p>No complaints found.</p>
+                        <p>{t('no_data_found')}</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto overflow-visible">
                         <table className="w-full min-w-[900px] text-left">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Title / Type</th>
+                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('type')}</th>
                                     <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Ward / Zone</th>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('address')}</th>
+                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('date')}</th>
+                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('status')}</th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -385,7 +387,7 @@ const ComplaintsTab: React.FC = () => {
                                                         complaint.status === 'ZONAL_APPROVED' ? 'bg-teal-100 text-teal-800' :
                                                             'bg-purple-100 text-purple-800'
                                                 }`}>
-                                                {complaint.status === 'ZONAL_APPROVED' ? 'ZONAL APPROVED' : complaint.status}
+                                                {complaint.status === 'ZONAL_APPROVED' ? t('status_zonal_approved') : complaint.status}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right dropdown-container relative">
@@ -404,7 +406,7 @@ const ComplaintsTab: React.FC = () => {
                                                             onClick={() => handleViewDetail(complaint.id, complaint.status)}
                                                             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                                                         >
-                                                            <Eye className="w-4 h-4 text-gray-500" /> View / Review
+                                                            <Eye className="w-4 h-4 text-gray-500" /> {t('review_complaint')}
                                                         </button>
                                                         {(complaint.status === 'SUBMITTED' || complaint.status === 'UNDER_REVIEW') && (
                                                             <button
@@ -412,7 +414,7 @@ const ComplaintsTab: React.FC = () => {
                                                                 onClick={() => openAssignModal(complaint.id)}
                                                                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                                                             >
-                                                                <UserPlus className="w-4 h-4 text-green-500" /> Assign Workers
+                                                                <UserPlus className="w-4 h-4 text-green-500" /> {t('assign_workers')}
                                                             </button>
                                                         )}
                                                         <button
@@ -420,7 +422,7 @@ const ComplaintsTab: React.FC = () => {
                                                             onClick={() => handleDelete(complaint.id)}
                                                             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                                                         >
-                                                            <Trash2 className="w-4 h-4" /> Delete
+                                                            <Trash2 className="w-4 h-4" /> {t('delete')}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -439,7 +441,7 @@ const ComplaintsTab: React.FC = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in">
                     <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                            <h3 className="font-semibold text-gray-900">Assign Workers</h3>
+                            <h3 className="font-semibold text-gray-900">{t('assign_workers')}</h3>
                             <button
                                 onClick={() => setIsAssignModalOpen(false)}
                                 className="text-gray-400 hover:text-gray-600 p-1"
@@ -450,12 +452,12 @@ const ComplaintsTab: React.FC = () => {
 
                         <div className="p-6">
                             <p className="text-sm text-gray-600 mb-4">
-                                Select one or more workers to assign to this complaint. They will be notified automatically.
+                                {t('assign_workers_desc')}
                             </p>
 
                             <div className="border border-gray-200 rounded-xl overflow-hidden max-h-[300px] overflow-y-auto">
                                 {workers.length === 0 ? (
-                                    <div className="p-4 text-center text-sm text-gray-500">No workers available.</div>
+                                    <div className="p-4 text-center text-sm text-gray-500">{t('no_data_found')}</div>
                                 ) : (
                                     workers.map(worker => (
                                         <div
@@ -483,7 +485,7 @@ const ComplaintsTab: React.FC = () => {
                                 onClick={() => setIsAssignModalOpen(false)}
                                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
                             >
-                                Cancel
+                                {t('cancel')}
                             </button>
                             <button
                                 onClick={handleAssignWorkers}
@@ -491,7 +493,7 @@ const ComplaintsTab: React.FC = () => {
                                 className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 {isAssigning ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                                Assign {selectedWorkerIds.length > 0 ? `(${selectedWorkerIds.length})` : ''}
+                                {t('assign')} {selectedWorkerIds.length > 0 ? `(${selectedWorkerIds.length})` : ''}
                             </button>
                         </div>
                     </div>
@@ -506,7 +508,7 @@ const ComplaintsTab: React.FC = () => {
                             <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Trash2 className="w-7 h-7 text-red-600" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Complaint?</h3>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">{t('confirm_delete')}</h3>
                             <p className="text-sm text-gray-500 mb-6">
                                 This will permanently remove the complaint and cannot be undone. Super Admin privileges are required.
                             </p>
@@ -516,7 +518,7 @@ const ComplaintsTab: React.FC = () => {
                                     disabled={isDeleting}
                                     className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50"
                                 >
-                                    Cancel
+                                    {t('cancel')}
                                 </button>
                                 <button
                                     onClick={executeDelete}
@@ -524,7 +526,7 @@ const ComplaintsTab: React.FC = () => {
                                     className="px-5 py-2.5 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
                                 >
                                     {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                                    Delete
+                                    {t('delete')}
                                 </button>
                             </div>
                         </div>
@@ -537,7 +539,7 @@ const ComplaintsTab: React.FC = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in">
                     <div className="bg-white rounded-2xl w-full max-w-2xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col">
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 flex-shrink-0">
-                            <h3 className="font-semibold text-gray-900">Review Complaint Verification</h3>
+                            <h3 className="font-semibold text-gray-900">{t('review_complaint')}</h3>
                             <button
                                 onClick={() => setIsReviewModalOpen(false)}
                                 className="text-gray-400 hover:text-gray-600 p-1"
@@ -564,7 +566,7 @@ const ComplaintsTab: React.FC = () => {
                             </div>
 
                             {/* Evidence display */}
-                            <h4 className="font-semibold text-gray-900 mb-3">Verification Evidence</h4>
+                            <h4 className="font-semibold text-gray-900 mb-3">{t('verification_evidence')}</h4>
                             {evidenceList.length === 0 ? (
                                 <div className="p-8 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
                                     <div className="text-gray-500 text-sm">No evidence photos uploaded yet.</div>
@@ -582,7 +584,7 @@ const ComplaintsTab: React.FC = () => {
                                             )}
                                             <div className="p-4 bg-gray-50 flex justify-between items-start gap-4 border-t border-gray-100">
                                                 <div>
-                                                    <div className="text-xs text-gray-400 mb-1 uppercase font-semibold">Worker Notes</div>
+                                                    <div className="text-xs text-gray-400 mb-1 uppercase font-semibold">{t('notes')}</div>
                                                     <p className="text-sm text-gray-700">{evidence.notes || 'No description provided.'}</p>
                                                 </div>
                                                 <div className="text-xs text-gray-400 whitespace-nowrap">
@@ -600,7 +602,7 @@ const ComplaintsTab: React.FC = () => {
                                 onClick={() => setIsReviewModalOpen(false)}
                                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
                             >
-                                Close
+                                {t('close')}
                             </button>
                             <div className="flex gap-3">
                                 <button
@@ -608,7 +610,7 @@ const ComplaintsTab: React.FC = () => {
                                     disabled={isReviewing}
                                     className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 disabled:opacity-50"
                                 >
-                                    Reject & Reassign
+                                    {t('reject_reassign')}
                                 </button>
                                 <button
                                     onClick={() => handleReviewAction('RESOLVED')}
@@ -616,7 +618,7 @@ const ComplaintsTab: React.FC = () => {
                                     className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
                                 >
                                     {isReviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                                    Approve & Resolve
+                                    {t('approve_resolve')}
                                 </button>
                             </div>
                         </div>

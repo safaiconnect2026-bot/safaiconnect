@@ -6,6 +6,7 @@ import {
 import StatCard from '../../common/StatCard';
 import { collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface Worker {
   id: string;
@@ -22,6 +23,7 @@ interface Worker {
 }
 
 const WorkerManagementTab: React.FC = () => {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -131,14 +133,14 @@ const WorkerManagementTab: React.FC = () => {
 
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-1">Worker Management</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-1">{t('workers')}</h2>
         <p className="text-gray-500">View and manage all registered workers</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <StatCard
-          title="Total Workers"
+          title={t('total_workers')}
           value={loading ? '...' : workers.length.toString()}
           icon={<Users className="w-6 h-6" />}
           trend={{ value: 'Live', isPositive: true }}
@@ -164,7 +166,7 @@ const WorkerManagementTab: React.FC = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by name, email, or zone..."
+            placeholder={t('search_workers')}
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all bg-white"
@@ -199,7 +201,7 @@ const WorkerManagementTab: React.FC = () => {
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900">Registered Workers</h3>
           <span className="text-sm text-gray-500">
-            {loading ? 'Loading...' : `${filteredWorkers.length} worker${filteredWorkers.length !== 1 ? 's' : ''}`}
+            {loading ? t('loading') : `${filteredWorkers.length} worker${filteredWorkers.length !== 1 ? 's' : ''}`}
           </span>
         </div>
 
@@ -212,7 +214,7 @@ const WorkerManagementTab: React.FC = () => {
             <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
               <Users className="w-10 h-10 text-gray-300" />
             </div>
-            <p className="text-xl font-bold text-gray-800">No Workers Found</p>
+            <p className="text-xl font-bold text-gray-800">{t('no_data_found')}</p>
             <p className="text-sm text-gray-500 mt-1">
               {searchTerm ? 'Try a different search term.' : 'No workers have registered yet.'}
             </p>
@@ -227,10 +229,10 @@ const WorkerManagementTab: React.FC = () => {
                     <th className="px-6 py-3 font-semibold">Worker</th>
                     <th className="px-6 py-3 font-semibold">Zone</th>
                     <th className="px-6 py-3 font-semibold">Ward</th>
-                    <th className="px-6 py-3 font-semibold">Type</th>
+                    <th className="px-6 py-3 font-semibold">{t('type')}</th>
                     <th className="px-6 py-3 font-semibold">Joined</th>
-                    <th className="px-6 py-3 font-semibold">Status</th>
-                    <th className="px-6 py-3 font-semibold text-right">Actions</th>
+                    <th className="px-6 py-3 font-semibold">{t('status')}</th>
+                    <th className="px-6 py-3 font-semibold text-right">{t('actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -283,13 +285,13 @@ const WorkerManagementTab: React.FC = () => {
                                 onClick={() => { setSelectedWorker(worker); setActiveActionMenu(null); }}
                                 className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"
                               >
-                                <Eye className="w-4 h-4" /> View Details
+                                <Eye className="w-4 h-4" /> {t('worker_details')}
                               </button>
                               <button
                                 onClick={() => handleToggleStatus(worker)}
                                 className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"
                               >
-                                <Ban className="w-4 h-4" /> {worker.status === 'Active' ? 'Deactivate' : 'Activate'}
+                                <Ban className="w-4 h-4" /> {worker.status === 'Active' ? t('action_deactivate') : t('action_activate')}
                               </button>
                             </div>
                           )}
@@ -329,13 +331,13 @@ const WorkerManagementTab: React.FC = () => {
                       onClick={() => setSelectedWorker(worker)}
                       className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
                     >
-                      View
+                      {t('details')}
                     </button>
                     <button
                       onClick={() => handleToggleStatus(worker)}
                       className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
                     >
-                      {worker.status === 'Active' ? 'Deactivate' : 'Activate'}
+                      {worker.status === 'Active' ? t('action_deactivate') : t('action_activate')}
                     </button>
                   </div>
                 </div>
@@ -354,14 +356,14 @@ const WorkerManagementTab: React.FC = () => {
                     disabled={currentPage === 1}
                     className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Previous
+                    {t('previous')}
                   </button>
                   <button
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                     className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Next
+                    {t('next')}
                   </button>
                 </div>
               </div>
@@ -375,7 +377,7 @@ const WorkerManagementTab: React.FC = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onClick={() => setSelectedWorker(null)}>
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-5 border-b border-gray-100 bg-purple-50/50 flex justify-between items-center">
-              <h3 className="text-lg font-bold text-gray-900">Worker Details</h3>
+              <h3 className="text-lg font-bold text-gray-900">{t('worker_details')}</h3>
               <button onClick={() => setSelectedWorker(null)} className="p-1 hover:bg-gray-200 rounded-lg">
                 <X className="w-5 h-5" />
               </button>

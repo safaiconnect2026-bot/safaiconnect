@@ -15,6 +15,9 @@ import ProfilePage from '../common/ProfilePage';
 import SettingsTab from './tabs/SettingsTab';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../../contexts/AuthContext';
+import WorkerTour from '../common/WorkerTour';
+import OnboardingChecklist from '../common/OnboardingChecklist';
 
 import { collection, query, where, onSnapshot, doc, getDoc, updateDoc, addDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
@@ -42,6 +45,7 @@ interface EnrichedTask {
 const WorkerDashboard: React.FC<WorkerDashboardProps> = ({ user, onLogout }) => {
   const { t } = useLanguage();
   const { error: toastError, success: toastSuccess } = useToast();
+  const { userProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('tasks');
   const [tasks, setTasks] = useState<EnrichedTask[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
@@ -280,11 +284,11 @@ const WorkerDashboard: React.FC<WorkerDashboardProps> = ({ user, onLogout }) => 
   };
 
   const sidebarItems = [
-    { icon: <ClipboardList className="w-5 h-5" />, label: t('my_tasks'), active: activeTab === 'tasks', onClick: () => setActiveTab('tasks') },
-    { icon: <Camera className="w-5 h-5" />, label: t('submit_proof'), active: activeTab === 'proof', onClick: () => { const inProgress = tasks.find(t => t.workerStatus === 'IN_PROGRESS'); if (inProgress && !selectedTaskId) { setSelectedTaskId(inProgress.assignmentId); setProofPhotos([]); } setActiveTab('proof'); } },
-    { icon: <CheckCircle className="w-5 h-5" />, label: t('attendance'), active: activeTab === 'attendance', onClick: () => setActiveTab('attendance') },
-    { icon: <QrCode className="w-5 h-5" />, label: t('digital_id'), active: activeTab === 'digitalid', onClick: () => setActiveTab('digitalid') },
-    { icon: <GraduationCap className="w-5 h-5" />, label: t('training'), active: activeTab === 'training', onClick: () => setActiveTab('training') },
+    { icon: <ClipboardList className="w-5 h-5" />, label: t('my_tasks'), active: activeTab === 'tasks', onClick: () => setActiveTab('tasks'), tourId: 'nav-tasks' },
+    { icon: <Camera className="w-5 h-5" />, label: t('submit_proof'), active: activeTab === 'proof', onClick: () => { const inProgress = tasks.find(t => t.workerStatus === 'IN_PROGRESS'); if (inProgress && !selectedTaskId) { setSelectedTaskId(inProgress.assignmentId); setProofPhotos([]); } setActiveTab('proof'); }, tourId: 'nav-proof' },
+    { icon: <CheckCircle className="w-5 h-5" />, label: t('attendance'), active: activeTab === 'attendance', onClick: () => setActiveTab('attendance'), tourId: 'nav-attendance' },
+    { icon: <QrCode className="w-5 h-5" />, label: t('digital_id'), active: activeTab === 'digitalid', onClick: () => setActiveTab('digitalid'), tourId: 'nav-digitalid' },
+    { icon: <GraduationCap className="w-5 h-5" />, label: t('training'), active: activeTab === 'training', onClick: () => setActiveTab('training'), tourId: 'nav-training' },
     { icon: <Settings className="w-5 h-5" />, label: t('settings'), active: activeTab === 'settings', onClick: () => setActiveTab('settings') },
     { icon: <UserCircle className="w-5 h-5" />, label: t('profile'), active: activeTab === 'profile', onClick: () => setActiveTab('profile') },
   ];
@@ -792,6 +796,8 @@ const WorkerDashboard: React.FC<WorkerDashboardProps> = ({ user, onLogout }) => 
   return (
     <Layout user={user} onLogout={onLogout} sidebarItems={sidebarItems} onProfileClick={() => setActiveTab('profile')}>
       {renderContent()}
+      {userProfile && <WorkerTour userProfile={userProfile} />}
+      <OnboardingChecklist userId={user.id} role="worker" />
     </Layout>
   );
 };

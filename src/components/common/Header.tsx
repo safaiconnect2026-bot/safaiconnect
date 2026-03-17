@@ -32,33 +32,44 @@ const toMs = (ts: any): number => {
   return new Date(ts).getTime() || 0;
 };
 
-const timeAgo = (ms: number): string => {
-  if (!ms) return '';
+const timeAgoRaw = (ms: number): { key: string; n?: number; date?: string } => {
+  if (!ms) return { key: '' };
   const s = Math.floor((Date.now() - ms) / 1000);
-  if (s < 60) return 'Just now';
-  const m = Math.floor(s / 60); if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60); if (h < 24) return `${h}h ago`;
-  const d = Math.floor(h / 24); if (d < 7) return `${d}d ago`;
-  return new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  SUBMITTED: 'Submitted',
-  UNDER_REVIEW: 'Under Review',
-  ASSIGNED: 'Assigned to worker',
-  IN_PROGRESS: 'In Progress',
-  COMPLETED: 'Completed by worker',
-  RESOLVED: '✅ Resolved',
-  CLOSED: '✅ Closed',
-  REASSIGNED: 'Reassigned',
+  if (s < 60) return { key: 'just_now' };
+  const m = Math.floor(s / 60); if (m < 60) return { key: 'minutes_ago', n: m };
+  const h = Math.floor(m / 60); if (h < 24) return { key: 'hours_ago', n: h };
+  const d = Math.floor(h / 24); if (d < 7) return { key: 'days_ago', n: d };
+  return { key: 'date', date: new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) };
 };
 
 // ─── NotificationsDropdown ────────────────────────────────────────────────────
 const NotificationsDropdown: React.FC<{ user: User; onClose: () => void }> = ({ user, onClose }) => {
+  const { t } = useLanguage();
   const [items, setItems] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const lsKey = `notif_seen_${user.id}`;
   const lastSeen = Number(localStorage.getItem(lsKey) || 0);
+
+  const STATUS_LABELS: Record<string, string> = {
+    SUBMITTED: t('status_submitted'),
+    UNDER_REVIEW: t('status_in_progress'),
+    ASSIGNED: t('status_assigned'),
+    IN_PROGRESS: t('status_in_progress'),
+    COMPLETED: t('status_resolved'),
+    RESOLVED: `✅ ${t('status_resolved')}`,
+    CLOSED: `✅ ${t('status_resolved')}`,
+    REASSIGNED: t('reassign'),
+  };
+
+  const timeAgo = (ms: number): string => {
+    const raw = timeAgoRaw(ms);
+    if (!raw.key) return '';
+    if (raw.key === 'just_now') return t('just_now');
+    if (raw.key === 'minutes_ago') return t('minutes_ago').replace('{{n}}', String(raw.n));
+    if (raw.key === 'hours_ago') return t('hours_ago').replace('{{n}}', String(raw.n));
+    if (raw.key === 'days_ago') return t('days_ago').replace('{{n}}', String(raw.n));
+    return raw.date || '';
+  };
 
   // ── Mark all read ──────────────────────────────────────────────────────────
   const markAllRead = () => {
@@ -205,7 +216,7 @@ const NotificationsDropdown: React.FC<{ user: User; onClose: () => void }> = ({ 
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50 flex-shrink-0">
         <div className="flex items-center gap-2">
           <Bell className="w-4 h-4 text-gray-600" />
-          <span className="font-semibold text-gray-900 text-sm">Notifications</span>
+          <span className="font-semibold text-gray-900 text-sm">{t('notifications')}</span>
           {unread > 0 && (
             <span className="text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full">{unread} new</span>
           )}
@@ -216,7 +227,7 @@ const NotificationsDropdown: React.FC<{ user: User; onClose: () => void }> = ({ 
               onClick={markAllRead}
               className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-800 font-medium px-2 py-1 hover:bg-emerald-50 rounded-lg transition-colors"
             >
-              <CheckCheck className="w-3.5 h-3.5" /> Mark read
+              <CheckCheck className="w-3.5 h-3.5" /> {t('mark_all_read')}
             </button>
           )}
           <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
@@ -234,8 +245,8 @@ const NotificationsDropdown: React.FC<{ user: User; onClose: () => void }> = ({ 
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-gray-400">
             <Bell className="w-10 h-10 mb-2 text-gray-200" />
-            <p className="text-sm font-medium">No notifications yet</p>
-            <p className="text-xs mt-1">Activity will appear here</p>
+            <p className="text-sm font-medium">{t('no_notifications_yet')}</p>
+            <p className="text-xs mt-1">{t('activity_will_appear')}</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
@@ -267,7 +278,7 @@ const NotificationsDropdown: React.FC<{ user: User; onClose: () => void }> = ({ 
       {/* Footer */}
       {items.length > 0 && (
         <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 flex-shrink-0">
-          <p className="text-[10px] text-gray-400 text-center">Showing last {items.length} activities</p>
+          <p className="text-[10px] text-gray-400 text-center">{t('view_all')} ({items.length})</p>
         </div>
       )}
     </div>
@@ -359,7 +370,7 @@ const Header: React.FC<HeaderProps> = ({ user, toggleSidebar, onProfileClick }) 
             <LanguageSwitcher />
 
             {/* Bell with notification badge */}
-            <div className="relative" ref={bellRef}>
+            <div className="relative" ref={bellRef} data-tour="notifications-bell">
               <button
                 onClick={handleBellClick}
                 className={`p-1 sm:p-2 rounded-full transition-colors relative group ${notifOpen ? 'bg-gray-100 text-gray-700' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}

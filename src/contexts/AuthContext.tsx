@@ -24,6 +24,7 @@ export interface UserProfile {
     preferences?: {
         notifications?: boolean;
         language?: string;
+        hasSeenTour?: boolean;
     };
 }
 
@@ -79,13 +80,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                             firestoreData = docSnap.data();
                             setNoDocument(false);
                             documentSeenOnce = true;
-                            console.log('✅ User document found in Firestore:', { uid: user.uid, data: firestoreData });
+                            if (import.meta.env.DEV) console.log('✅ User document found in Firestore:', { uid: user.uid, data: firestoreData });
                         } else if (!documentSeenOnce) {
                             // First snapshot: doc doesn't exist yet.
                             // SignupPage writes the profile with the chosen role — give it
                             // time to land before we overwrite with a default Citizen profile.
                             documentSeenOnce = true; // prevent duplicate auto-creates
-                            console.warn('⏳ User document not found, waiting for signup write...');
+                            if (import.meta.env.DEV) console.warn('⏳ User document not found, waiting for signup write...');
 
                             setTimeout(async () => {
                                 try {
@@ -93,14 +94,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                     const { getDoc: gd, setDoc: sd, serverTimestamp: st } = await import('firebase/firestore');
                                     const freshSnap = await gd(docRef);
                                     if (freshSnap.exists()) {
-                                        console.log('✅ Profile appeared after wait — signup write landed.');
+                                        if (import.meta.env.DEV) console.log('✅ Profile appeared after wait — signup write landed.');
                                         // onSnapshot will pick it up; nothing to do.
                                         return;
                                     }
 
                                     // Still missing — this is likely a direct login for a user
                                     // whose profile was deleted. Create a safe default.
-                                    console.warn('⚠️ Still no profile after wait — auto-creating Citizen profile.');
+                                    if (import.meta.env.DEV) console.warn('⚠️ Still no profile after wait — auto-creating Citizen profile.');
                                     await sd(docRef, {
                                         uid: user.uid,
                                         email: user.email || '',
@@ -115,7 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                                         assignedZone: '',
                                         preferences: { notifications: true, language: 'en' },
                                     });
-                                    console.log('✅ Auto-created Citizen profile for:', user.uid);
+                                    if (import.meta.env.DEV) console.log('✅ Auto-created Citizen profile for:', user.uid);
                                 } catch (err: unknown) {
                                     console.error('[AuthContext] Auto-create profile failed:', err);
                                     setNoDocument(true);

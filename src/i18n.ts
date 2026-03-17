@@ -12,6 +12,16 @@ import gu from './locales/gu.json';
 import bn from './locales/bn.json';
 import kn from './locales/kn.json';
 
+// Suppress the i18next Locize promotional console.log in production.
+// i18next logs it synchronously during .init(), so we restore console.log immediately after.
+const _origLog = console.log.bind(console);
+if (!import.meta.env.DEV) {
+    console.log = (...args: unknown[]) => {
+        if (typeof args[0] === 'string' && args[0].includes('locize')) return;
+        _origLog(...args);
+    };
+}
+
 i18n
     .use(LanguageDetector)
     .use(initReactI18next)
@@ -33,5 +43,8 @@ i18n
             kn: { translation: kn },
         }
     });
+
+// Restore original console.log after init
+console.log = _origLog;
 
 export default i18n;

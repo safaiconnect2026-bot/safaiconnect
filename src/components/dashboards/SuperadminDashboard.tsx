@@ -13,6 +13,9 @@ import {
 } from 'lucide-react';
 import { User } from '../../App';
 import Layout from '../common/Layout';
+import { useAuth } from '../../contexts/AuthContext';
+import SuperadminTour from '../common/SuperadminTour';
+import OnboardingChecklist from '../common/OnboardingChecklist';
 import TrainingSystem from '../training/TrainingSystem';
 import TrainingUploadTab from './tabs/TrainingUploadTab';
 import OverviewTab from './tabs/OverviewTab';
@@ -34,16 +37,17 @@ interface SuperadminDashboardProps {
 const SuperadminDashboard: React.FC<SuperadminDashboardProps> = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const { t } = useLanguage();
+  const { userProfile } = useAuth();
 
   const sidebarItems = [
-    { icon: <BarChart3 className="w-5 h-5" />, label: t('overview'), active: activeTab === 'overview', onClick: () => setActiveTab('overview') },
-    { icon: <Users className="w-5 h-5" />, label: t('admin_management'), active: activeTab === 'admins', onClick: () => setActiveTab('admins') },
-    { icon: <UserCheck className="w-5 h-5" />, label: 'Citizens', active: activeTab === 'citizens', onClick: () => setActiveTab('citizens') },
-    { icon: <HardHat className="w-5 h-5" />, label: 'Workers', active: activeTab === 'workers', onClick: () => setActiveTab('workers') },
-    { icon: <MapPin className="w-5 h-5" />, label: 'Locations', active: activeTab === 'locations', onClick: () => setActiveTab('locations') },
+    { icon: <BarChart3 className="w-5 h-5" />, label: t('overview'), active: activeTab === 'overview', onClick: () => setActiveTab('overview'), tourId: 'nav-overview' },
+    { icon: <Users className="w-5 h-5" />, label: t('admin_management'), active: activeTab === 'admins', onClick: () => setActiveTab('admins'), tourId: 'nav-admins' },
+    { icon: <UserCheck className="w-5 h-5" />, label: t('citizens_mgmt'), active: activeTab === 'citizens', onClick: () => setActiveTab('citizens'), tourId: 'nav-citizens' },
+    { icon: <HardHat className="w-5 h-5" />, label: t('workers_mgmt'), active: activeTab === 'workers', onClick: () => setActiveTab('workers') },
+    { icon: <MapPin className="w-5 h-5" />, label: t('locations'), active: activeTab === 'locations', onClick: () => setActiveTab('locations'), tourId: 'nav-locations' },
     { icon: <GraduationCap className="w-5 h-5" />, label: t('training'), active: activeTab === 'training', onClick: () => setActiveTab('training') },
-    { icon: <FileText className="w-5 h-5" />, label: t('reports'), active: activeTab === 'reports', onClick: () => setActiveTab('reports') },
-    { icon: <Package className="w-5 h-5" />, label: t('inventory_management'), active: activeTab === 'inventory', onClick: () => setActiveTab('inventory') },
+    { icon: <FileText className="w-5 h-5" />, label: t('reports'), active: activeTab === 'reports', onClick: () => setActiveTab('reports'), tourId: 'nav-reports' },
+    { icon: <Package className="w-5 h-5" />, label: t('inventory_management'), active: activeTab === 'inventory', onClick: () => setActiveTab('inventory'), tourId: 'nav-inventory' },
     { icon: <Settings className="w-5 h-5" />, label: t('settings'), active: activeTab === 'settings', onClick: () => setActiveTab('settings') },
     { icon: <UserCircle className="w-5 h-5" />, label: t('profile'), active: activeTab === 'profile', onClick: () => setActiveTab('profile') },
   ];
@@ -72,19 +76,22 @@ const SuperadminDashboard: React.FC<SuperadminDashboardProps> = ({ user, onLogou
       onProfileClick={() => setActiveTab('profile')}
     >
       {renderContent()}
+      {userProfile && <SuperadminTour userProfile={userProfile} />}
+      <OnboardingChecklist userId={user.id} role="superadmin" />
     </Layout>
   );
 };
 
 // ── Superadmin Training Wrapper (sub-tabs: Exercises + Upload Materials) ─────
 const SuperadminTrainingWrapper: React.FC<{ user: User }> = ({ user }) => {
+  const { t } = useLanguage();
   const [subTab, setSubTab] = useState<'exercises' | 'materials'>('materials');
   return (
     <div className="space-y-6">
       <div className="flex bg-gray-100 rounded-xl p-1 gap-1 w-fit">
         {[
-          { key: 'materials' as const, label: 'Upload Materials' },
-          { key: 'exercises' as const, label: 'Training Exercises' },
+          { key: 'materials' as const, label: t('upload_materials') },
+          { key: 'exercises' as const, label: t('training_exercises') },
         ].map(tab => (
           <button
             key={tab.key}

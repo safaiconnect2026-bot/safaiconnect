@@ -406,3 +406,203 @@ textarea:focus {
   background-size: 200% 100%;
   animation: shimmer 3s ease-in-out infinite;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Safai Onboarding Tour — Shepherd.js custom theme
+   Overrides shepherd.js/dist/css/shepherd.css defaults to match the app's
+   Tailwind design system (emerald accent, Inter font, rounded-2xl cards).
+   Mobile-first: tooltips cap at 90vw and centre automatically on small screens.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Tooltip container ──────────────────────────────────────────────────── */
+.safai-tour-step.shepherd-element {
+  background: #ffffff;
+  border-radius: 1rem;               /* rounded-2xl */
+  box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.08);
+  max-width: min(380px, 90vw);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  border: 1px solid #e5e7eb;         /* gray-200 */
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.safai-tour-step .shepherd-header {
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); /* emerald-50 → green-50 */
+  border-radius: 1rem 1rem 0 0;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #d1fae5;  /* emerald-100 */
+}
+
+.safai-tour-step .shepherd-title {
+  color: #065f46;                    /* emerald-900 */
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* Cancel (✕) icon */
+.safai-tour-step .shepherd-cancel-icon {
+  color: #6b7280;                    /* gray-500 */
+  font-size: 1.25rem;
+  transition: color 0.15s;
+}
+.safai-tour-step .shepherd-cancel-icon:hover { color: #111827; }
+
+/* ── Body ───────────────────────────────────────────────────────────────── */
+.safai-tour-step .shepherd-text {
+  padding: 1rem 1.25rem;
+  color: #374151;                    /* gray-700 */
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.safai-tour-step .shepherd-text p { margin: 0; }
+.safai-tour-step .shepherd-text strong { color: #065f46; font-weight: 600; }
+.safai-tour-step .shepherd-text em    { color: #10b981; font-style: normal; font-weight: 500; }
+
+/* ── Footer / Buttons ───────────────────────────────────────────────────── */
+.safai-tour-step .shepherd-footer {
+  padding: 0.75rem 1.25rem 1rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  border-top: 1px solid #f3f4f6;    /* gray-100 */
+}
+
+/* Primary (Next / Done) */
+.safai-tour-step .shepherd-btn-primary,
+.safai-tour-step .shepherd-button:not(.shepherd-button-secondary) {
+  background: linear-gradient(135deg, #10b981, #059669); /* emerald-500 → emerald-600 */
+  color: #ffffff;
+  border: none;
+  border-radius: 0.625rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.safai-tour-step .shepherd-btn-primary:hover,
+.safai-tour-step .shepherd-button:not(.shepherd-button-secondary):hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Larger primary on first/last step */
+.safai-tour-step .shepherd-btn-lg {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+/* Secondary (Back / Skip) */
+.safai-tour-step .shepherd-button-secondary,
+.safai-tour-step .shepherd-btn-back,
+.safai-tour-step .shepherd-btn-skip {
+  background: transparent;
+  color: #6b7280;                    /* gray-500 */
+  border: 1px solid #e5e7eb;
+  border-radius: 0.625rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.safai-tour-step .shepherd-button-secondary:hover,
+.safai-tour-step .shepherd-btn-back:hover,
+.safai-tour-step .shepherd-btn-skip:hover {
+  background: #f9fafb;
+  color: #374151;
+}
+
+/* ── Arrow ──────────────────────────────────────────────────────────────── */
+.safai-tour-step .shepherd-arrow::before {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+/* ── AI step — teal accent header ───────────────────────────────────────── */
+.safai-tour-step--ai .shepherd-header {
+  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%); /* blue-50 → sky-50 */
+  border-bottom-color: #bfdbfe;
+}
+.safai-tour-step--ai .shepherd-title { color: #1e40af; }  /* blue-800 */
+.safai-tour-step--ai .shepherd-text strong { color: #1e40af; }
+
+/* ── Centered modal (Welcome step) — override FloatingUI positioning ────── */
+.safai-tour-step--centered.shepherd-element {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  max-width: min(420px, 92vw);
+}
+/* Hide FloatingUI arrow on centred step */
+.safai-tour-step--centered .shepherd-arrow { display: none !important; }
+
+/* ── Mobile tweaks (≤ 640 px) ───────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .safai-tour-step.shepherd-element {
+    max-width: 92vw;
+    border-radius: 0.875rem;
+  }
+  /* On mobile the sidebar is full-width; position tooltip below the button */
+  .safai-tour-step.shepherd-element[data-popper-placement^="right"] {
+    --shepherd-element-z-index: 9999;
+  }
+  .safai-tour-step .shepherd-footer {
+    flex-wrap: wrap;
+  }
+  .safai-tour-step .shepherd-btn-lg {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* ── Modal overlay — semi-transparent with emerald tint ─────────────────── */
+.shepherd-modal-overlay-container .shepherd-modal-overlay-svg-path {
+  fill: rgba(0, 0, 0, 0.45);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Role-specific tour theme variants
+   Each overrides the header gradient + title/strong colour to match role identity.
+   Base card, buttons, and arrow inherit from .safai-tour-step.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Worker tour — orange / amber accent ────────────────────────────────── */
+.safai-tour-step--worker .shepherd-header {
+  background: linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%); /* orange-50 → amber-50 */
+  border-bottom-color: #fed7aa;  /* orange-200 */
+}
+.safai-tour-step--worker .shepherd-title { color: #92400e; }   /* amber-800 */
+.safai-tour-step--worker .shepherd-text strong { color: #b45309; } /* amber-700 */
+.safai-tour-step--worker .shepherd-text em    { color: #d97706; } /* amber-500 */
+
+/* ── Admin tour — blue accent ───────────────────────────────────────────── */
+.safai-tour-step--admin .shepherd-header {
+  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%); /* blue-50 → sky-50 */
+  border-bottom-color: #bfdbfe;  /* blue-200 */
+}
+.safai-tour-step--admin .shepherd-title { color: #1e3a8a; }    /* blue-900 */
+.safai-tour-step--admin .shepherd-text strong { color: #1d4ed8; } /* blue-700 */
+.safai-tour-step--admin .shepherd-text em    { color: #3b82f6; } /* blue-500 */
+
+/* ── Zonal Admin tour — purple accent ───────────────────────────────────── */
+.safai-tour-step--zonal .shepherd-header {
+  background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%); /* purple-50 → violet-50 */
+  border-bottom-color: #ddd6fe;  /* violet-200 */
+}
+.safai-tour-step--zonal .shepherd-title { color: #4c1d95; }    /* violet-900 */
+.safai-tour-step--zonal .shepherd-text strong { color: #6d28d9; } /* violet-700 */
+.safai-tour-step--zonal .shepherd-text em    { color: #8b5cf6; } /* violet-500 */
+
+/* ── Superadmin tour — slate / dark accent ──────────────────────────────── */
+.safai-tour-step--superadmin .shepherd-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); /* slate-50 → slate-100 */
+  border-bottom-color: #cbd5e1;  /* slate-300 */
+}
+.safai-tour-step--superadmin .shepherd-title { color: #0f172a; }    /* slate-900 */
+.safai-tour-step--superadmin .shepherd-text strong { color: #334155; } /* slate-700 */
+.safai-tour-step--superadmin .shepherd-text em    { color: #64748b; } /* slate-500 */

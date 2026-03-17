@@ -6,6 +6,7 @@ import {
 import StatCard from '../../common/StatCard';
 import { collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface Citizen {
   id: string;
@@ -21,6 +22,7 @@ interface Citizen {
 }
 
 const CitizenManagementTab: React.FC = () => {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -131,7 +133,7 @@ const CitizenManagementTab: React.FC = () => {
 
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-1">Citizen Management</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-1">{t('role_citizen')}</h2>
         <p className="text-gray-500">View and manage all registered citizens</p>
       </div>
 
@@ -164,7 +166,7 @@ const CitizenManagementTab: React.FC = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by name, email, or citizen ID..."
+            placeholder={t('search')}
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all bg-white"
@@ -199,7 +201,7 @@ const CitizenManagementTab: React.FC = () => {
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900">Registered Citizens</h3>
           <span className="text-sm text-gray-500">
-            {loading ? 'Loading...' : `${filteredCitizens.length} citizen${filteredCitizens.length !== 1 ? 's' : ''}`}
+            {loading ? t('loading') : `${filteredCitizens.length} citizen${filteredCitizens.length !== 1 ? 's' : ''}`}
           </span>
         </div>
 
@@ -212,7 +214,7 @@ const CitizenManagementTab: React.FC = () => {
             <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
               <Users className="w-10 h-10 text-gray-300" />
             </div>
-            <p className="text-xl font-bold text-gray-800">No Citizens Found</p>
+            <p className="text-xl font-bold text-gray-800">{t('no_data_found')}</p>
             <p className="text-sm text-gray-500 mt-1">
               {searchTerm ? 'Try a different search term.' : 'No citizens have registered yet.'}
             </p>
@@ -229,8 +231,8 @@ const CitizenManagementTab: React.FC = () => {
                     <th className="px-6 py-3 font-semibold">Zone</th>
                     <th className="px-6 py-3 font-semibold">Reward Pts</th>
                     <th className="px-6 py-3 font-semibold">Joined</th>
-                    <th className="px-6 py-3 font-semibold">Status</th>
-                    <th className="px-6 py-3 font-semibold text-right">Actions</th>
+                    <th className="px-6 py-3 font-semibold">{t('status')}</th>
+                    <th className="px-6 py-3 font-semibold text-right">{t('actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -276,13 +278,13 @@ const CitizenManagementTab: React.FC = () => {
                                 onClick={() => { setSelectedCitizen(citizen); setActiveActionMenu(null); }}
                                 className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"
                               >
-                                <Eye className="w-4 h-4" /> View Details
+                                <Eye className="w-4 h-4" /> {t('details')}
                               </button>
                               <button
                                 onClick={() => handleToggleStatus(citizen)}
                                 className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"
                               >
-                                <Ban className="w-4 h-4" /> {citizen.status === 'Active' ? 'Deactivate' : 'Activate'}
+                                <Ban className="w-4 h-4" /> {citizen.status === 'Active' ? t('action_deactivate') : t('action_activate')}
                               </button>
                             </div>
                           )}
@@ -322,13 +324,13 @@ const CitizenManagementTab: React.FC = () => {
                       onClick={() => setSelectedCitizen(citizen)}
                       className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
                     >
-                      View
+                      {t('details')}
                     </button>
                     <button
                       onClick={() => handleToggleStatus(citizen)}
                       className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
                     >
-                      {citizen.status === 'Active' ? 'Deactivate' : 'Activate'}
+                      {citizen.status === 'Active' ? t('action_deactivate') : t('action_activate')}
                     </button>
                   </div>
                 </div>
@@ -347,14 +349,14 @@ const CitizenManagementTab: React.FC = () => {
                     disabled={currentPage === 1}
                     className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Previous
+                    {t('previous')}
                   </button>
                   <button
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                     className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Next
+                    {t('next')}
                   </button>
                 </div>
               </div>
@@ -368,7 +370,7 @@ const CitizenManagementTab: React.FC = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onClick={() => setSelectedCitizen(null)}>
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-5 border-b border-gray-100 bg-emerald-50/50 flex justify-between items-center">
-              <h3 className="text-lg font-bold text-gray-900">Citizen Details</h3>
+              <h3 className="text-lg font-bold text-gray-900">Citizen {t('details')}</h3>
               <button onClick={() => setSelectedCitizen(null)} className="p-1 hover:bg-gray-200 rounded-lg">
                 <X className="w-5 h-5" />
               </button>
@@ -425,13 +427,13 @@ const CitizenManagementTab: React.FC = () => {
                   onClick={() => { handleToggleStatus(selectedCitizen); setSelectedCitizen(null); }}
                   className={`flex-1 py-2.5 rounded-xl font-medium text-sm ${selectedCitizen.status === 'Active' ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200' : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200'}`}
                 >
-                  {selectedCitizen.status === 'Active' ? 'Deactivate' : 'Activate'}
+                  {selectedCitizen.status === 'Active' ? t('action_deactivate') : t('action_activate')}
                 </button>
                 <button
                   onClick={() => setSelectedCitizen(null)}
                   className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-medium text-sm"
                 >
-                  Close
+                  {t('close')}
                 </button>
               </div>
             </div>

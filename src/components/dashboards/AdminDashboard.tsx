@@ -13,6 +13,9 @@ import {
 import { User } from '../../App';
 import Layout from '../common/Layout';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useAuth } from '../../contexts/AuthContext';
+import AdminTour from '../common/AdminTour';
+import OnboardingChecklist from '../common/OnboardingChecklist';
 import TrainingSystem from '../training/TrainingSystem';
 import ProfilePage from '../common/ProfilePage';
 
@@ -32,15 +35,16 @@ interface AdminDashboardProps {
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   const { t } = useLanguage();
+  const { userProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
 
   const sidebarItems = [
-    { icon: <LayoutDashboard className="w-5 h-5" />, label: t('overview'), active: activeTab === 'overview', onClick: () => setActiveTab('overview') },
-    { icon: <ClipboardList className="w-5 h-5" />, label: t('complaints'), active: activeTab === 'complaints', onClick: () => setActiveTab('complaints') },
-    { icon: <Users className="w-5 h-5" />, label: t('workers'), active: activeTab === 'workers', onClick: () => setActiveTab('workers') },
-    { icon: <UserCheck className="w-5 h-5" />, label: t('work_verification'), active: activeTab === 'verification', onClick: () => setActiveTab('verification') },
+    { icon: <LayoutDashboard className="w-5 h-5" />, label: t('overview'), active: activeTab === 'overview', onClick: () => setActiveTab('overview'), tourId: 'nav-overview' },
+    { icon: <ClipboardList className="w-5 h-5" />, label: t('complaints'), active: activeTab === 'complaints', onClick: () => setActiveTab('complaints'), tourId: 'nav-complaints' },
+    { icon: <Users className="w-5 h-5" />, label: t('workers'), active: activeTab === 'workers', onClick: () => setActiveTab('workers'), tourId: 'nav-workers' },
+    { icon: <UserCheck className="w-5 h-5" />, label: t('work_verification'), active: activeTab === 'verification', onClick: () => setActiveTab('verification'), tourId: 'nav-verification' },
     { icon: <GraduationCap className="w-5 h-5" />, label: t('training'), active: activeTab === 'training', onClick: () => setActiveTab('training') },
-    { icon: <DollarSign className="w-5 h-5" />, label: t('salary_tracking'), active: activeTab === 'salary', onClick: () => setActiveTab('salary') },
+    { icon: <DollarSign className="w-5 h-5" />, label: t('salary_tracking'), active: activeTab === 'salary', onClick: () => setActiveTab('salary'), tourId: 'nav-salary' },
     { icon: <MapPin className="w-5 h-5" />, label: t('manage_areas') || 'Manage Areas', active: activeTab === 'areas', onClick: () => setActiveTab('areas') },
     { icon: <Settings className="w-5 h-5" />, label: t('settings'), active: activeTab === 'settings', onClick: () => setActiveTab('settings') },
     { icon: <UserCircle className="w-5 h-5" />, label: t('profile'), active: activeTab === 'profile', onClick: () => setActiveTab('profile') },
@@ -69,6 +73,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }) => {
   return (
     <Layout user={user} onLogout={onLogout} sidebarItems={sidebarItems} onProfileClick={() => setActiveTab('profile')}>
       {renderContent()}
+      {userProfile && <AdminTour userProfile={userProfile} />}
+      <OnboardingChecklist userId={user.id} role="admin" />
     </Layout>
   );
 };

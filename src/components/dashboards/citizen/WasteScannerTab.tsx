@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Camera as CapCamera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -68,21 +69,23 @@ function toBase64(file: File): Promise<string> {
 }
 
 function ConfidenceBadge({ confidence }: { confidence: number }) {
+  const { t } = useLanguage();
+  const pct = Math.round(confidence * 100);
   if (confidence >= 0.8)
     return (
       <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
-        <CheckCircle className="w-3.5 h-3.5" /> High confidence
+        <CheckCircle className="w-3.5 h-3.5" /> {t('confidence')} {pct}%
       </span>
     );
   if (confidence >= 0.5)
     return (
       <span className="flex items-center gap-1 text-xs text-amber-600 font-medium">
-        <Zap className="w-3.5 h-3.5" /> Moderate confidence
+        <Zap className="w-3.5 h-3.5" /> {t('confidence')} {pct}%
       </span>
     );
   return (
     <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-      <AlertTriangle className="w-3.5 h-3.5" /> Low confidence
+      <AlertTriangle className="w-3.5 h-3.5" /> {t('confidence')} {pct}%
     </span>
   );
 }
@@ -192,6 +195,7 @@ function drawContours(
 // ── Item card ─────────────────────────────────────────────────────────────
 
 function WasteItemCard({ item, index }: { item: WasteItem; index: number }) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState(index === 0);
   const meta = CATEGORY_META[item.category] ?? CATEGORY_META['Unknown'];
 
@@ -222,7 +226,7 @@ function WasteItemCard({ item, index }: { item: WasteItem; index: number }) {
           <div className="flex items-center gap-3 bg-white/70 rounded-xl p-3">
             <div className="w-8 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: item.binColor }} />
             <div>
-              <p className="text-xs text-gray-500 font-medium">Dispose in</p>
+              <p className="text-xs text-gray-500 font-medium">{t('dispose_in')}</p>
               <p className="font-bold text-gray-900 text-sm">{item.bin}</p>
             </div>
           </div>
@@ -231,11 +235,11 @@ function WasteItemCard({ item, index }: { item: WasteItem; index: number }) {
           <div className="flex items-center gap-2">
             {item.recyclable ? (
               <span className="flex items-center gap-1.5 text-sm font-semibold text-green-700">
-                <Recycle className="w-4 h-4" /> Recyclable
+                <Recycle className="w-4 h-4" /> {t('recyclable')}
               </span>
             ) : (
               <span className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
-                <Trash2 className="w-4 h-4" /> Not recyclable
+                <Trash2 className="w-4 h-4" /> {t('not_recyclable')}
               </span>
             )}
             <span className="ml-auto">
@@ -257,6 +261,7 @@ function WasteItemCard({ item, index }: { item: WasteItem; index: number }) {
 // ── Main component ─────────────────────────────────────────────────────────
 
 export default function WasteScannerTab() {
+  const { t } = useLanguage();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [result, setResult] = useState<WasteAnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -394,10 +399,10 @@ export default function WasteScannerTab() {
       <div>
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <ScanLine className="w-7 h-7 text-emerald-600" />
-          Waste Scanner
+          {t('scan_waste_title')}
         </h2>
         <p className="text-gray-500 text-sm mt-1">
-          Take or upload a photo — AI will detect, label, and guide disposal of every waste item in the scene.
+          {t('scan_waste_subtitle')}
         </p>
       </div>
 
@@ -520,7 +525,7 @@ export default function WasteScannerTab() {
               <p className="text-sm font-semibold text-gray-700">
                 {result.items.length} waste item{result.items.length > 1 ? 's' : ''} detected
               </p>
-              <span className="text-xs text-gray-400">Tap each to expand</span>
+              <span className="text-xs text-gray-400">{t('tap_to_expand')}</span>
             </div>
           )}
 
@@ -534,7 +539,7 @@ export default function WasteScannerTab() {
                 <div className={`rounded-2xl border-2 p-5 space-y-4 ${CATEGORY_META[result.category]?.bg ?? 'bg-gray-50'} ${CATEGORY_META[result.category]?.border ?? 'border-gray-200'}`}>
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Identified as</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{t('identified_as')}</p>
                       <p className="text-xl font-bold text-gray-900 mt-0.5">{result.wasteType}</p>
                     </div>
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold ${CATEGORY_META[result.category]?.bg} ${CATEGORY_META[result.category]?.text} border ${CATEGORY_META[result.category]?.border}`}>
@@ -544,18 +549,18 @@ export default function WasteScannerTab() {
                   <div className="flex items-center gap-3 bg-white/70 rounded-xl p-3">
                     <div className="w-10 h-10 rounded-full flex-shrink-0" style={{ backgroundColor: result.binColor }} />
                     <div>
-                      <p className="text-xs text-gray-500 font-medium">Dispose in</p>
+                      <p className="text-xs text-gray-500 font-medium">{t('dispose_in')}</p>
                       <p className="font-bold text-gray-900">{result.bin}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {result.recyclable
-                      ? <><Recycle className="w-5 h-5 text-green-600" /><span className="text-sm font-semibold text-green-700">Recyclable</span></>
-                      : <><Trash2 className="w-5 h-5 text-gray-500" /><span className="text-sm font-semibold text-gray-600">Not recyclable</span></>}
+                      ? <><Recycle className="w-5 h-5 text-green-600" /><span className="text-sm font-semibold text-green-700">{t('recyclable')}</span></>
+                      : <><Trash2 className="w-5 h-5 text-gray-500" /><span className="text-sm font-semibold text-gray-600">{t('not_recyclable')}</span></>}
                     <span className="ml-auto"><ConfidenceBadge confidence={result.confidence} /></span>
                   </div>
                   <div className="bg-white/70 rounded-xl p-3">
-                    <p className="text-xs text-gray-500 font-medium mb-1">How to dispose</p>
+                    <p className="text-xs text-gray-500 font-medium mb-1">{t('how_to_dispose')}</p>
                     <p className="text-sm text-gray-800">{result.instructions}</p>
                   </div>
                 </div>

@@ -6,12 +6,14 @@ import {
 } from 'lucide-react';
 import { collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface City { id: string; name: string; state: string; }
 interface Zone { id: string; name: string; cityId: string; isActive?: boolean; }
 interface Ward { id: string; name: string; zoneId: string; cityId: string; isActive?: boolean; }
 
 const LocationManagementTab: React.FC = () => {
+  const { t } = useLanguage();
   const [cities, setCities] = useState<City[]>([]);
   const [zones, setZones] = useState<Zone[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
@@ -192,8 +194,8 @@ const LocationManagementTab: React.FC = () => {
 
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-1">Location Management</h2>
-        <p className="text-gray-500">Manage cities, zones, and wards hierarchy</p>
+        <h2 className="text-3xl font-bold text-gray-900 mb-1">{t('locations')}</h2>
+        <p className="text-gray-500">{t('manage_areas')}</p>
       </div>
 
       {/* Stats */}
@@ -202,21 +204,21 @@ const LocationManagementTab: React.FC = () => {
           <div className="p-2 rounded-xl bg-white/60"><Building2 className="w-5 h-5" /></div>
           <div>
             <div className="text-2xl font-bold">{loading ? '...' : cities.length}</div>
-            <div className="text-sm font-medium opacity-80">Cities</div>
+            <div className="text-sm font-medium opacity-80">{t('cities')}</div>
           </div>
         </div>
         <div className="rounded-2xl p-5 border bg-emerald-50 text-emerald-700 border-emerald-100 flex items-center gap-4">
           <div className="p-2 rounded-xl bg-white/60"><Map className="w-5 h-5" /></div>
           <div>
             <div className="text-2xl font-bold">{loading ? '...' : zones.length}</div>
-            <div className="text-sm font-medium opacity-80">Zones</div>
+            <div className="text-sm font-medium opacity-80">{t('zones')}</div>
           </div>
         </div>
         <div className="rounded-2xl p-5 border bg-purple-50 text-purple-700 border-purple-100 flex items-center gap-4">
           <div className="p-2 rounded-xl bg-white/60"><LayoutGrid className="w-5 h-5" /></div>
           <div>
             <div className="text-2xl font-bold">{loading ? '...' : wards.length}</div>
-            <div className="text-sm font-medium opacity-80">Wards</div>
+            <div className="text-sm font-medium opacity-80">{t('wards')}</div>
           </div>
         </div>
       </div>
@@ -231,7 +233,7 @@ const LocationManagementTab: React.FC = () => {
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
               <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-blue-600" /> Cities
+                <Building2 className="w-4 h-4 text-blue-600" /> {t('cities')}
               </h3>
               <button onClick={() => openModal('city', 'add')} className="p-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <Plus className="w-4 h-4" />
@@ -239,7 +241,7 @@ const LocationManagementTab: React.FC = () => {
             </div>
             <div className="divide-y divide-gray-100 max-h-[400px] overflow-y-auto">
               {cities.length === 0 ? (
-                <div className="p-8 text-center text-gray-400 text-sm">No cities added yet</div>
+                <div className="p-8 text-center text-gray-400 text-sm">{t('no_cities_yet')}</div>
               ) : cities.map(city => (
                 <div
                   key={city.id}
@@ -268,7 +270,7 @@ const LocationManagementTab: React.FC = () => {
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
               <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                <Map className="w-4 h-4 text-emerald-600" /> Zones
+                <Map className="w-4 h-4 text-emerald-600" /> {t('zones')}
                 {selectedCity && <span className="text-xs text-gray-400 font-normal ml-1">in {selectedCity.name}</span>}
               </h3>
               {selectedCityId && (
@@ -279,9 +281,9 @@ const LocationManagementTab: React.FC = () => {
             </div>
             <div className="divide-y divide-gray-100 max-h-[400px] overflow-y-auto">
               {!selectedCityId ? (
-                <div className="p-8 text-center text-gray-400 text-sm">Select a city to view zones</div>
+                <div className="p-8 text-center text-gray-400 text-sm">{t('select_city')}</div>
               ) : filteredZones.length === 0 ? (
-                <div className="p-8 text-center text-gray-400 text-sm">No zones in {selectedCity?.name}</div>
+                <div className="p-8 text-center text-gray-400 text-sm">{t('no_zones_yet')}</div>
               ) : filteredZones.map(zone => (
                 <div
                   key={zone.id}
@@ -316,7 +318,7 @@ const LocationManagementTab: React.FC = () => {
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
               <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                <LayoutGrid className="w-4 h-4 text-purple-600" /> Wards
+                <LayoutGrid className="w-4 h-4 text-purple-600" /> {t('wards')}
                 {selectedZone && <span className="text-xs text-gray-400 font-normal ml-1">in {selectedZone.name}</span>}
               </h3>
               {selectedZoneId && (
@@ -327,9 +329,9 @@ const LocationManagementTab: React.FC = () => {
             </div>
             <div className="divide-y divide-gray-100 max-h-[400px] overflow-y-auto">
               {!selectedZoneId ? (
-                <div className="p-8 text-center text-gray-400 text-sm">Select a zone to view wards</div>
+                <div className="p-8 text-center text-gray-400 text-sm">{t('select_zone')}</div>
               ) : filteredWards.length === 0 ? (
-                <div className="p-8 text-center text-gray-400 text-sm">No wards in {selectedZone?.name}</div>
+                <div className="p-8 text-center text-gray-400 text-sm">{t('no_wards_yet')}</div>
               ) : filteredWards.map(ward => (
                 <div key={ward.id} className={`px-5 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors ${ward.isActive === false ? 'opacity-60' : ''}`}>
                   <div className="min-w-0">
@@ -390,14 +392,14 @@ const LocationManagementTab: React.FC = () => {
               )}
             </div>
             <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3 border-t border-gray-100">
-              <button onClick={() => setModal(null)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">Cancel</button>
+              <button onClick={() => setModal(null)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">{t('cancel')}</button>
               <button
                 onClick={handleSave}
                 disabled={saving || !formName.trim()}
                 className="px-6 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-60 flex items-center gap-2"
               >
                 {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                {modal.mode === 'add' ? 'Add' : 'Save'}
+                {modal.mode === 'add' ? t('add_city').split(' ')[0] : t('save')}
               </button>
             </div>
           </div>
@@ -410,7 +412,7 @@ const LocationManagementTab: React.FC = () => {
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-5 border-b border-gray-100 bg-red-50 flex items-center gap-3">
               <AlertTriangle className="w-5 h-5 text-red-500" />
-              <h3 className="font-bold text-gray-900">Confirm Delete</h3>
+              <h3 className="font-bold text-gray-900">{t('confirm_delete').split('?')[0]}</h3>
             </div>
             <div className="p-6">
               <p className="text-gray-600">
@@ -420,14 +422,14 @@ const LocationManagementTab: React.FC = () => {
               </p>
             </div>
             <div className="px-6 py-4 bg-gray-50 flex justify-end gap-3 border-t border-gray-100">
-              <button onClick={() => setConfirmDelete(null)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">Cancel</button>
+              <button onClick={() => setConfirmDelete(null)} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">{t('cancel')}</button>
               <button
                 onClick={handleDelete}
                 disabled={saving}
                 className="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-60 flex items-center gap-2"
               >
                 {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                Delete
+                {t('delete')}
               </button>
             </div>
           </div>

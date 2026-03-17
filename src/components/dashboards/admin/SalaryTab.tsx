@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useToast } from '../../../contexts/ToastContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 interface SalaryTabProps {
     onNavigate: (tab: string) => void;
@@ -36,6 +37,7 @@ const formatINR = (amount: number) =>
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
 
 const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
+    const { t } = useLanguage();
     const { error: toastError } = useToast();
     const [workers, setWorkers] = useState<WorkerSalary[]>([]);
     const [loading, setLoading] = useState(true);
@@ -94,7 +96,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                     id: workerId,
                     name: workerData.name || 'Unknown',
                     email: workerData.email || '',
-                    assignedZone: workerData.assignedZone || workerData.area || 'Unassigned',
+                    assignedZone: workerData.assignedZone || workerData.area || t('unassigned'),
                     tasksCompleted: tasksThisMonth,
                     baseSalary: BASE_SALARY,
                     taskBonus,
@@ -180,8 +182,8 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
         <div className="space-y-8 relative">
             <div className="flex justify-between items-start flex-wrap gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Salary Tracking</h2>
-                    <p className="text-gray-600">Payroll for {CURRENT_MONTH} — Base ₹{BASE_SALARY.toLocaleString()} + ₹{PER_TASK_BONUS}/task bonus</p>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">{t('salary_tracking')}</h2>
+                    <p className="text-gray-600">{t('current_pay_period')}: {CURRENT_MONTH} — Base ₹{BASE_SALARY.toLocaleString()} + ₹{PER_TASK_BONUS}/task bonus</p>
                 </div>
                 <div className="flex gap-3">
                     <button
@@ -197,7 +199,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                         className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm disabled:opacity-50"
                     >
                         <Download className="w-4 h-4" />
-                        Export CSV
+                        {t('export')}
                     </button>
                 </div>
             </div>
@@ -219,7 +221,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                     color="blue"
                 />
                 <StatCard
-                    title="Pending Payment"
+                    title={t('status_pending')}
                     value={loading ? '...' : pendingCount.toString()}
                     icon={<AlertCircle className="w-6 h-6" />}
                     trend={{ value: 'Action required', isPositive: false }}
@@ -252,7 +254,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                         <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                             <Users className="w-8 h-8 text-gray-300" />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Workers Found</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('no_data_found')}</h3>
                         <p className="text-gray-500 text-sm max-w-sm">
                             No workers are registered yet.
                         </p>
@@ -260,7 +262,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                             onClick={() => onNavigate('workers')}
                             className="mt-5 px-5 py-2 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 font-medium text-sm transition-colors"
                         >
-                            View Workers
+                            {t('workers')}
                         </button>
                     </div>
                 ) : (
@@ -274,8 +276,8 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                                     <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Base</th>
                                     <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Bonus</th>
                                     <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Total</th>
-                                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Status</th>
-                                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Action</th>
+                                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">{t('status')}</th>
+                                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">{t('actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 bg-white">
@@ -319,7 +321,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                                                     : 'bg-orange-100 text-orange-700'
                                                 }`}>
                                                 {w.paymentStatus === 'paid' ? '✓ Paid' :
-                                                    w.paymentStatus === 'processing' ? 'Processing' : 'Pending'}
+                                                    w.paymentStatus === 'processing' ? 'Processing' : t('status_pending')}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
@@ -356,7 +358,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                                     </td>
                                     <td colSpan={2} className="px-6 py-3 text-right">
                                         <span className="text-sm text-gray-500">
-                                            {paidCount} paid · {pendingCount} pending
+                                            {paidCount} paid · {pendingCount} {t('status_pending')}
                                         </span>
                                     </td>
                                 </tr>
@@ -369,11 +371,11 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
             {/* Info card about salary structure */}
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl p-5">
                 <h4 className="font-semibold text-emerald-900 mb-2 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" /> Salary Structure
+                    <DollarSign className="w-4 h-4" /> {t('salary')}
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                     <div className="bg-white/70 rounded-xl p-3">
-                        <p className="text-xs text-gray-500 uppercase font-semibold mb-1">Base Salary</p>
+                        <p className="text-xs text-gray-500 uppercase font-semibold mb-1">Base {t('salary')}</p>
                         <p className="text-lg font-bold text-gray-900">₹{BASE_SALARY.toLocaleString()}</p>
                         <p className="text-xs text-gray-500">Per month, guaranteed</p>
                     </div>
@@ -383,7 +385,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                         <p className="text-xs text-gray-500">Per completed & verified task</p>
                     </div>
                     <div className="bg-white/70 rounded-xl p-3">
-                        <p className="text-xs text-gray-500 uppercase font-semibold mb-1">Month</p>
+                        <p className="text-xs text-gray-500 uppercase font-semibold mb-1">{t('current_pay_period')}</p>
                         <p className="text-lg font-bold text-gray-900">{CURRENT_MONTH}</p>
                         <p className="text-xs text-gray-500">Current pay period</p>
                     </div>
@@ -395,7 +397,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in">
                     <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                            <h3 className="font-bold text-gray-900">Confirm Payment</h3>
+                            <h3 className="font-bold text-gray-900">{t('confirm')}</h3>
                             <button
                                 onClick={() => { setShowPayModal(false); setSelectedWorker(null); }}
                                 className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
@@ -416,7 +418,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
 
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between py-2 border-b border-gray-100">
-                                    <span className="text-gray-600">Base Salary</span>
+                                    <span className="text-gray-600">Base {t('salary')}</span>
                                     <span className="font-semibold">₹{selectedWorker.baseSalary.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-gray-100">
@@ -440,7 +442,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                                 onClick={() => { setShowPayModal(false); setSelectedWorker(null); }}
                                 className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50"
                             >
-                                Cancel
+                                {t('cancel')}
                             </button>
                             <button
                                 onClick={() => handleMarkPaid(selectedWorker)}
@@ -450,7 +452,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                                 {updatingId === selectedWorker.id
                                     ? <Loader2 className="w-4 h-4 animate-spin" />
                                     : <CheckCircle className="w-4 h-4" />}
-                                Confirm Payment
+                                {t('confirm')}
                             </button>
                         </div>
                     </div>

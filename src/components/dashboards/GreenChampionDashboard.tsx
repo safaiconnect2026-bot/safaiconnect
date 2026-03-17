@@ -4,6 +4,7 @@ import { User } from '../../App';
 import CitizenDashboard from './CitizenDashboard';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface GreenChampionDashboardProps {
   user: User;
@@ -18,6 +19,7 @@ interface LeaderboardEntry {
 }
 
 const GreenChampionBanner: React.FC<{ user: User }> = ({ user }) => {
+  const { t } = useLanguage();
   const [rank, setRank] = useState<number | null>(null);
 
   useEffect(() => {
@@ -46,24 +48,24 @@ const GreenChampionBanner: React.FC<{ user: User }> = ({ user }) => {
           <Leaf className="w-5 h-5" />
         </div>
         <div>
-          <p className="font-bold text-sm">Green Champion</p>
+          <p className="font-bold text-sm">{t('green_champion')}</p>
           <p className="text-green-100 text-xs">{user.name}</p>
         </div>
         <div className="flex items-center gap-1 bg-white/20 rounded-full px-3 py-1">
           <Award className="w-4 h-4 text-yellow-300" />
-          <span className="text-xs font-semibold">Champion</span>
+          <span className="text-xs font-semibold">{t('champion_hub').split(' ')[0]}</span>
         </div>
       </div>
       <div className="text-right">
         {rank !== null && (
           <div className="flex items-center gap-1">
             <Trophy className="w-4 h-4 text-yellow-300" />
-            <span className="font-bold text-sm">#{rank} Leaderboard</span>
+            <span className="font-bold text-sm">#{rank} {t('champion_leaderboard_rank')}</span>
           </div>
         )}
         <div className="flex items-center gap-1 mt-0.5">
           <Star className="w-3 h-3 text-yellow-300 fill-yellow-300" />
-          <span className="text-xs">Active Champion</span>
+          <span className="text-xs">{t('active_champion')}</span>
         </div>
       </div>
     </div>
