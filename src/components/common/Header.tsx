@@ -351,19 +351,21 @@ const Header: React.FC<HeaderProps> = ({ user, toggleSidebar, onProfileClick, on
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 transition-all duration-300">
+    <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-all duration-300">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Left: logo + hamburger */}
+          {/* Left: hamburger + logo */}
           <div className="flex items-center gap-3">
-            {/* Logo - visible on mobile; desktop shows logo in sidebar instead */}
-            <img src="/logo.png" alt="SafaiConnect" className="h-10 w-auto max-w-[140px] object-contain md:hidden" />
+            {/* Hamburger — mobile only, leftmost for easy thumb access */}
             <button
               onClick={toggleSidebar}
               className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500"
+              aria-label="Open menu"
             >
               <Menu className="w-6 h-6" />
             </button>
+            {/* Logo - visible on mobile; desktop shows logo in sidebar instead */}
+            <img src="/logo.png" alt="SafaiConnect" className="h-10 w-auto max-w-[140px] object-contain md:hidden" />
           </div>
 
           {/* Right: language + bell + user */}

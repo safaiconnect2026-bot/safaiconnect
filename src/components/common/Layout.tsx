@@ -60,7 +60,7 @@ const Layout: React.FC<LayoutProps> = ({ user, onLogout, children, sidebarItems,
           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           onLogout={handleLogoutClick}
         />
-        <main className={`flex-1 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-80'} p-2 sm:p-4 lg:p-8 pt-20 md:pt-24 transition-all duration-300 w-full overflow-x-hidden`}>
+        <main className={`flex-1 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-80'} p-3 sm:p-4 lg:p-8 pt-20 md:pt-6 transition-all duration-300 w-full overflow-x-hidden min-w-0`}>
           {children}
         </main>
       </div>

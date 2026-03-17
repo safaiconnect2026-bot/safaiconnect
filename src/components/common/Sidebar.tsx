@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useRef } from 'react';
-import { LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LogOut, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface SidebarItem {
@@ -84,10 +84,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* Mobile Overlay — starts below header so header stays interactive */}
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+          className="md:hidden fixed inset-x-0 bottom-0 top-16 bg-black/50 z-40 transition-opacity duration-300"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -99,14 +99,26 @@ const Sidebar: React.FC<SidebarProps> = ({
         aria-label={t('navigation') || 'Navigation'}
         className={[
           'fixed left-0 top-16 z-40',
-          'h-[calc(100vh-4rem)]',
-          isCollapsed ? 'md:w-20 w-80' : 'w-80',
-          'bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-sm flex flex-col',
+          'h-[calc(100dvh-4rem)] md:h-[calc(100vh-4rem)]',
+          isCollapsed ? 'md:w-20 w-[280px]' : 'w-[280px] md:w-80',
+          'bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg flex flex-col',
           'transform transition-all duration-300 ease-in-out',
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         ].join(' ')}
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
       >
+        {/* Mobile sidebar header with close button */}
+        <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+          <img src="/logo.png" alt="SafaiConnect" className="h-8 w-auto max-w-[120px] object-contain" />
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
         {/* Desktop/tablet logo — full when expanded, icon-only when collapsed */}
         <div className={`hidden md:flex items-center border-b border-gray-100 dark:border-gray-700 ${isCollapsed ? 'justify-center px-2 py-3' : 'px-5 py-3'}`}>
           {isCollapsed ? (
