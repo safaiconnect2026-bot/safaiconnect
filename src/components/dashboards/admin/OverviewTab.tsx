@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Users, AlertTriangle, Activity, Loader2,
-  CheckCircle, Clock, TrendingUp, UserCheck,
+  CheckCircle, Clock, TrendingUp, UserCheck, Truck,
 } from 'lucide-react';
 import StatCard from '../../common/StatCard';
 import { collection, query, onSnapshot, where } from 'firebase/firestore';
@@ -30,6 +30,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
     activeWorkers:      0,
     totalWorkers:       0,
     citizens:           0,
+    pendingBookings:    0,
     loading:            true,
   });
   const [priorityActions, setPriorityActions] = useState<PriorityAction[]>([]);
@@ -80,7 +81,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
       (snapshot) => setStats(prev => ({ ...prev, citizens: snapshot.docs.length }))
     );
 
-    return () => { unsubscribeComplaints(); unsubscribeWorkers(); unsubscribeAttendance(); unsubscribeCitizens(); };
+    // ── 4. Pending collection bookings ────────────────────────────────────
+    const unsubscribeBookings = onSnapshot(
+      query(collection(db, 'collection_bookings'), where('status', '==', 'pending')),
+      (snapshot) => setStats(prev => ({ ...prev, pendingBookings: snapshot.docs.length }))
+    );
+
+    return () => { unsubscribeComplaints(); unsubscribeWorkers(); unsubscribeAttendance(); unsubscribeCitizens(); unsubscribeBookings(); };
   }, []);
 
   const resolutionRate = stats.totalComplaints > 0
@@ -256,6 +263,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate }) => {
               { label: t('workers'), icon: <UserCheck className="w-3.5 h-3.5" />, tab: 'workers', val: stats.activeWorkers },
               { label: t('complaints'), icon: <Users className="w-3.5 h-3.5" />, tab: 'complaints', val: stats.citizens },
               { label: t('work_verification'), icon: <CheckCircle className="w-3.5 h-3.5" />, tab: 'verification', val: null },
+              { label: t('collection_bookings'), icon: <Truck className="w-3.5 h-3.5" />, tab: 'collection_bookings', val: stats.pendingBookings > 0 ? stats.pendingBookings : null },
               { label: t('salary'), icon: <TrendingUp className="w-3.5 h-3.5" />, tab: 'salary', val: null },
             ].map(item => (
               <button

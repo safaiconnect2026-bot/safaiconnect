@@ -19,6 +19,7 @@ import { db } from '../../lib/firebase';
 import { User } from '../../App';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { useToast } from '../../contexts/ToastContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { TRAINING_MODULES, TrainingModule, Exercise } from '../../data/trainingModules';
 
 interface TrainingSystemProps {
@@ -50,6 +51,7 @@ interface ExerciseState {
 
 const TrainingSystem: React.FC<TrainingSystemProps> = ({ user }) => {
   const { warning: toastWarning } = useToast();
+  const { t } = useLanguage();
   const [userProgress, setUserProgress] = useState<UserProgress>({
     completedModules: [],
     totalPoints: 0,
@@ -822,8 +824,8 @@ const TrainingSystem: React.FC<TrainingSystemProps> = ({ user }) => {
             </div>
             <span className="text-2xl font-bold text-green-600">{userProgress.level}</span>
           </div>
-          <h3 className="text-gray-600 text-sm font-medium mb-1">Current Level</h3>
-          <p className="text-gray-800 font-semibold">{userProgress.xp} XP Earned</p>
+          <h3 className="text-gray-600 text-sm font-medium mb-1">{t('current_level')}</h3>
+          <p className="text-gray-800 font-semibold">{userProgress.xp} {t('xp_earned')}</p>
         </div>
 
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200">
@@ -833,7 +835,7 @@ const TrainingSystem: React.FC<TrainingSystemProps> = ({ user }) => {
             </div>
             <span className="text-2xl font-bold text-blue-600">{Math.round(completionRate)}%</span>
           </div>
-          <h3 className="text-gray-600 text-sm font-medium mb-1">Completion Rate</h3>
+          <h3 className="text-gray-600 text-sm font-medium mb-1">{t('completion_rate')}</h3>
           <p className="text-gray-800 font-semibold">{userProgress.completedModules.length}/{modules.length} modules</p>
         </div>
 

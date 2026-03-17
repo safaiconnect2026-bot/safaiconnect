@@ -50,7 +50,18 @@ export async function uploadToCloudinary(
       } else {
         const body = (() => { try { return JSON.parse(xhr.responseText); } catch { return null; } })();
         const msg = body?.error?.message || xhr.statusText;
-        reject(new Error(`Upload failed (${xhr.status}): ${msg}`));
+        // Provide actionable messages for common Cloudinary errors
+        if (xhr.status === 401) {
+          if (msg?.toLowerCase().includes('cloud_name')) {
+            reject(new Error('Image upload unavailable: cloud storage is not configured. Your report will be submitted without the image.'));
+          } else {
+            reject(new Error('Image upload unauthorized. Please check your Cloudinary credentials.'));
+          }
+        } else if (xhr.status === 400 && msg?.toLowerCase().includes('upload_preset')) {
+          reject(new Error('Image upload misconfigured: invalid upload preset. Please contact support.'));
+        } else {
+          reject(new Error(`Upload failed (${xhr.status}): ${msg}`));
+        }
       }
     };
 

@@ -7,6 +7,7 @@ import {
   UserCircle,
   Settings,
   MapPin,
+  Truck,
 } from 'lucide-react';
 import { User } from '../../App';
 import Layout from '../common/Layout';
@@ -21,6 +22,7 @@ import ZonalComplaintsTab from './zonal/ZonalComplaintsTab';
 import ZonalWorkersTab from './zonal/ZonalWorkersTab';
 import ZonalVerificationTab from './zonal/ZonalVerificationTab';
 import ManageAreasTab from './admin/ManageAreasTab';
+import CollectionBookingsTab from './admin/CollectionBookingsTab';
 import SettingsTab from './tabs/SettingsTab';
 
 interface ZonalAdminDashboardProps {
@@ -41,6 +43,7 @@ const ZonalAdminDashboard: React.FC<ZonalAdminDashboardProps> = ({ user, onLogou
     { icon: <ClipboardList className="w-5 h-5" />, label: t('complaints') || 'Complaints', active: activeTab === 'complaints', onClick: () => setActiveTab('complaints'), tourId: 'nav-complaints' },
     { icon: <Users className="w-5 h-5" />, label: t('workers') || 'Workers', active: activeTab === 'workers', onClick: () => setActiveTab('workers'), tourId: 'nav-workers' },
     { icon: <UserCheck className="w-5 h-5" />, label: t('work_verification') || 'Work Verification', active: activeTab === 'verification', onClick: () => setActiveTab('verification'), tourId: 'nav-verification' },
+    { icon: <Truck className="w-5 h-5" />, label: t('collection_bookings') || 'Collection Bookings', active: activeTab === 'collection_bookings', onClick: () => setActiveTab('collection_bookings') },
     { icon: <MapPin className="w-5 h-5" />, label: t('manage_wards') || 'Manage Wards', active: activeTab === 'wards', onClick: () => setActiveTab('wards'), tourId: 'nav-wards' },
     { icon: <Settings className="w-5 h-5" />, label: t('settings') || 'Settings', active: activeTab === 'settings', onClick: () => setActiveTab('settings') },
     { icon: <UserCircle className="w-5 h-5" />, label: t('profile') || 'Profile', active: activeTab === 'profile', onClick: () => setActiveTab('profile') },
@@ -56,6 +59,8 @@ const ZonalAdminDashboard: React.FC<ZonalAdminDashboardProps> = ({ user, onLogou
         return <ZonalWorkersTab zoneId={zoneId} />;
       case 'verification':
         return <ZonalVerificationTab zoneId={zoneId} />;
+      case 'collection_bookings':
+        return <CollectionBookingsTab />;
       case 'wards':
         return <ManageAreasTab cityId={cityId} />;
       case 'settings':

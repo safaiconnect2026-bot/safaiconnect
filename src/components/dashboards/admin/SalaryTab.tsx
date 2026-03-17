@@ -191,7 +191,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                         className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors text-sm font-medium"
                     >
                         <Loader2 className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                        Refresh
+                        {t('refresh')}
                     </button>
                     <button
                         onClick={exportCSV}
@@ -207,14 +207,14 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
-                    title="Outstanding Payroll"
+                    title={t('outstanding_payroll')}
                     value={loading ? '...' : formatINR(totalPayroll)}
                     icon={<IndianRupee className="w-6 h-6" />}
-                    trend={{ value: 'This Month', isPositive: false }}
+                    trend={{ value: t('this_month') || 'This Month', isPositive: false }}
                     color="green"
                 />
                 <StatCard
-                    title="Workers Paid"
+                    title={t('workers_paid')}
                     value={loading ? '...' : paidCount.toString()}
                     icon={<CheckCircle className="w-6 h-6" />}
                     trend={{ value: `of ${workers.length}`, isPositive: true }}
@@ -224,14 +224,14 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
                     title={t('status_pending')}
                     value={loading ? '...' : pendingCount.toString()}
                     icon={<AlertCircle className="w-6 h-6" />}
-                    trend={{ value: 'Action required', isPositive: false }}
+                    trend={{ value: t('action_required'), isPositive: false }}
                     color="yellow"
                 />
                 <StatCard
-                    title="Avg Salary"
+                    title={t('avg_salary')}
                     value={loading ? '...' : formatINR(avgSalary)}
                     icon={<TrendingUp className="w-6 h-6" />}
-                    trend={{ value: 'Per worker', isPositive: true }}
+                    trend={{ value: t('per_worker'), isPositive: true }}
                     color="purple"
                 />
             </div>
@@ -239,7 +239,7 @@ const SalaryTab: React.FC<SalaryTabProps> = ({ onNavigate }) => {
             {/* Payroll Table */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-gray-900">Worker Payroll — {CURRENT_MONTH}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('worker_payroll')} — {CURRENT_MONTH}</h3>
                     {!loading && (
                         <span className="text-sm text-gray-500">{workers.length} workers</span>
                     )}

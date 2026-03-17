@@ -73,6 +73,15 @@ const Sidebar: React.FC<SidebarProps> = ({
         ].join(' ')}
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
       >
+        {/* Desktop logo — full when expanded, icon-only when collapsed */}
+        <div className={`hidden lg:flex items-center border-b border-gray-100 dark:border-gray-700 ${isCollapsed ? 'justify-center px-2 py-3' : 'px-5 py-3'}`}>
+          {isCollapsed ? (
+            <img src="/pwa-192x192.png" alt="SafaiConnect" className="h-9 w-9 rounded-xl object-cover" />
+          ) : (
+            <img src="/logo.png" alt="SafaiConnect" className="h-9 w-auto max-w-[130px] object-contain" />
+          )}
+        </div>
+
         <nav className="p-4 sm:p-6 flex-1 overflow-y-auto overscroll-contain touch-pan-y mt-2">
           <ul className="space-y-2">
             {items.map((item, index) => (

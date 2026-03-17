@@ -3,7 +3,7 @@ import {
   ClipboardList, Camera, CheckCircle, GraduationCap,
   QrCode, BarChart3, Clock, Target,
   MapPin, X, Loader2, UserCircle, Settings,
-  CalendarCheck, LogIn, LogOut, Calendar
+  CalendarCheck, LogIn, LogOut, Calendar, Truck,
 } from 'lucide-react';
 
 import { User } from '../../App';
@@ -19,7 +19,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import WorkerTour from '../common/WorkerTour';
 import OnboardingChecklist from '../common/OnboardingChecklist';
 
-import { collection, query, where, onSnapshot, doc, getDoc, updateDoc, addDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, getDoc, updateDoc, addDoc, serverTimestamp, setDoc, orderBy } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { uploadToCloudinary } from '../../lib/cloudinary';
 
@@ -42,6 +42,18 @@ interface EnrichedTask {
   complaintStatus: string;
 }
 
+interface CollectionBooking {
+  id: string;
+  type: 'immediate' | 'scheduled';
+  address: string;
+  wasteType: string;
+  notes?: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  createdAt: any;
+  scheduledDate?: string;
+  scheduledTime?: string;
+}
+
 const WorkerDashboard: React.FC<WorkerDashboardProps> = ({ user, onLogout }) => {
   const { t } = useLanguage();
   const { error: toastError, success: toastSuccess } = useToast();
@@ -49,6 +61,8 @@ const WorkerDashboard: React.FC<WorkerDashboardProps> = ({ user, onLogout }) => 
   const [activeTab, setActiveTab] = useState('tasks');
   const [tasks, setTasks] = useState<EnrichedTask[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
+  const [collectionBookings, setCollectionBookings] = useState<CollectionBooking[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(true);
 
   // Active task for proof submission
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
@@ -67,6 +81,23 @@ const WorkerDashboard: React.FC<WorkerDashboardProps> = ({ user, onLogout }) => 
   const [proofDescription, setProofDescription] = useState('');
   const proofCameraInputRef = useRef<HTMLInputElement>(null);
   const proofGalleryInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch collection bookings assigned to this worker
+  useEffect(() => {
+    if (!user || !user.id) return;
+    const q = query(
+      collection(db, 'collection_bookings'),
+      where('assignedWorkerId', '==', user.id),
+      orderBy('createdAt', 'desc')
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const list: CollectionBooking[] = [];
+      snap.forEach(d => list.push({ id: d.id, ...d.data() } as CollectionBooking));
+      setCollectionBookings(list);
+      setLoadingBookings(false);
+    }, () => setLoadingBookings(false));
+    return () => unsub();
+  }, [user]);
 
   // Fetch tasks
   useEffect(() => {
@@ -288,6 +319,7 @@ const WorkerDashboard: React.FC<WorkerDashboardProps> = ({ user, onLogout }) => 
     { icon: <Camera className="w-5 h-5" />, label: t('submit_proof'), active: activeTab === 'proof', onClick: () => { const inProgress = tasks.find(t => t.workerStatus === 'IN_PROGRESS'); if (inProgress && !selectedTaskId) { setSelectedTaskId(inProgress.assignmentId); setProofPhotos([]); } setActiveTab('proof'); }, tourId: 'nav-proof' },
     { icon: <CheckCircle className="w-5 h-5" />, label: t('attendance'), active: activeTab === 'attendance', onClick: () => setActiveTab('attendance'), tourId: 'nav-attendance' },
     { icon: <QrCode className="w-5 h-5" />, label: t('digital_id'), active: activeTab === 'digitalid', onClick: () => setActiveTab('digitalid'), tourId: 'nav-digitalid' },
+    { icon: <Truck className="w-5 h-5" />, label: t('collection_requests'), active: activeTab === 'collection', onClick: () => setActiveTab('collection') },
     { icon: <GraduationCap className="w-5 h-5" />, label: t('training'), active: activeTab === 'training', onClick: () => setActiveTab('training'), tourId: 'nav-training' },
     { icon: <Settings className="w-5 h-5" />, label: t('settings'), active: activeTab === 'settings', onClick: () => setActiveTab('settings') },
     { icon: <UserCircle className="w-5 h-5" />, label: t('profile'), active: activeTab === 'profile', onClick: () => setActiveTab('profile') },
@@ -787,6 +819,72 @@ const WorkerDashboard: React.FC<WorkerDashboardProps> = ({ user, onLogout }) => 
           </div>
         );
       case 'training': return <WorkerTrainingWrapper user={user} />;
+      case 'collection':
+        return (
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">{t('my_collection_tasks')}</h2>
+              <p className="text-gray-600">{t('collection_bookings_subtitle')}</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 className="text-lg font-semibold text-gray-900">{t('collection_requests')}</h3>
+              </div>
+              {loadingBookings ? (
+                <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>
+              ) : collectionBookings.length === 0 ? (
+                <div className="p-10 text-center text-gray-400">
+                  <Truck className="w-10 h-10 mx-auto mb-2 text-gray-200" />
+                  <p>{t('no_bookings_yet')}</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {collectionBookings.map((booking) => (
+                    <div key={booking.id} className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase ${booking.status === 'completed' ? 'bg-green-100 text-green-800' : booking.status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                              {booking.status.replace('_', ' ')}
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-full text-xs bg-gray-100 text-gray-600">
+                              {booking.type === 'immediate' ? t('immediate') : t('scheduled')}
+                            </span>
+                          </div>
+                          <p className="text-sm font-medium text-gray-800 flex items-start gap-1">
+                            <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                            <span className="line-clamp-2">{booking.address}</span>
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">{t('waste_type')}: <span className="font-medium">{booking.wasteType}</span></p>
+                          {booking.scheduledDate && (
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              {t('date')}: {new Date(booking.scheduledDate + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              {booking.scheduledTime && ` at ${booking.scheduledTime}`}
+                            </p>
+                          )}
+                          {booking.notes && <p className="text-xs text-gray-400 mt-1 italic">"{booking.notes}"</p>}
+                        </div>
+                        {booking.status === 'in_progress' && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                await updateDoc(doc(db, 'collection_bookings', booking.id), { status: 'completed', completedAt: serverTimestamp() });
+                                toastSuccess('Marked as completed!');
+                              } catch { toastError('Failed to update.'); }
+                            }}
+                            className="flex-shrink-0 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
+                          >
+                            {t('mark_completed')}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
       case 'settings': return <SettingsTab user={user} />;
       case 'profile': return <ProfilePage user={user} />;
       default: return null;

@@ -101,7 +101,7 @@ const SettingsTab: React.FC<SettingsTabProps> = ({ user }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {/* General Preferences */}
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden transition-colors duration-300">
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm transition-colors duration-300">
                     <div className="p-4 bg-gray-50 border-b border-gray-200">
                         <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                             <Globe className="w-5 h-5 text-gray-500" />

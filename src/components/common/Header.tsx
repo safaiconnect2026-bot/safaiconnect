@@ -355,8 +355,8 @@ const Header: React.FC<HeaderProps> = ({ user, toggleSidebar, onProfileClick }) 
         <div className="flex justify-between items-center h-16">
           {/* Left: logo + hamburger */}
           <div className="flex items-center gap-3">
-            {/* Logo - always visible on left */}
-            <img src="/logo.png" alt="SafaiConnect" className="h-10 w-auto max-w-[140px] object-contain" />
+            {/* Logo - visible on mobile; desktop shows logo in sidebar instead */}
+            <img src="/logo.png" alt="SafaiConnect" className="h-10 w-auto max-w-[140px] object-contain lg:hidden" />
             <button
               onClick={toggleSidebar}
               className="lg:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500"

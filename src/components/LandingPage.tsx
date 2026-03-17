@@ -159,7 +159,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
                     {/* Logo */}
                     <div onClick={() => scrollTo('hero')} className="flex items-center gap-2.5 cursor-pointer group">
-                        <img src="/logo.png" alt="Safai Connect Logo" className="h-10 w-auto object-contain group-hover:scale-105 transition-transform" />
+                        <img src="/logo.png" alt="Safai Connect Logo" className="h-8 sm:h-10 w-auto max-w-[140px] object-contain group-hover:scale-105 transition-transform" />
                         
                     </div>
 
@@ -570,7 +570,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                         <div>
                             <div className="flex items-center gap-3 mb-6 cursor-pointer" onClick={() => scrollTo('hero')}>
-                                <img src="/logo.png" alt="Safai Connect Logo" className="h-10 w-auto object-contain" />
+                                <img src="/logo.png" alt="Safai Connect Logo" className="h-10 w-auto max-w-[140px] object-contain" />
                                 {/* <span className="text-xl font-bold text-white">SafaiConnect</span> */}
                             </div>
                             <p className="text-gray-400 text-sm leading-relaxed">

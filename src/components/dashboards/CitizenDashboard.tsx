@@ -513,17 +513,24 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
 
     try {
       let imageUrl = null;
+      let imageUploadWarning = '';
 
-      // Only upload the first photo for now to simplify, or join multiple if needed. 
+      // Only upload the first photo for now to simplify, or join multiple if needed.
       // The schema currently supports a single imageUrl, so we take the first.
       if (photos.length > 0 && photos[0].file) {
         const file = photos[0].file;
-        const result = await withTimeout(
-          uploadToCloudinary(file, { folder: 'complaints' }),
-          30000,
-          'Image upload timed out. Please check your connection and try again.'
-        );
-        imageUrl = result.secure_url;
+        try {
+          const result = await withTimeout(
+            uploadToCloudinary(file, { folder: 'complaints' }),
+            30000,
+            'Image upload timed out. Your report will be submitted without the image.'
+          );
+          imageUrl = result.secure_url;
+        } catch (uploadErr: any) {
+          // Allow submission to proceed without image — log warning for user
+          console.warn('Image upload failed, submitting without image:', uploadErr?.message);
+          imageUploadWarning = uploadErr?.message || 'Image upload failed. Report submitted without image.';
+        }
       }
 
       // Grab GPS coords from the first geo-tagged photo (if any)
@@ -563,7 +570,9 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
 
       await withTimeout(addDoc(collection(db, 'complaints'), complaintData), 15000, 'Failed to save complaint. Please try again.');
 
-      setSubmitSuccess('Your complaint has been successfully submitted!');
+      setSubmitSuccess(imageUploadWarning
+        ? `Your complaint has been submitted (without image: ${imageUploadWarning})`
+        : 'Your complaint has been successfully submitted!');
       // Clear draft and reset form
       localStorage.removeItem(DRAFT_KEY);
       setIssueType('');
@@ -590,9 +599,9 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
   const sidebarItems = [
     { icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav_home'), active: activeTab === 'home', onClick: () => setActiveTab('home') },
     ...(isChampion ? [{ icon: <Trophy className="w-5 h-5 text-yellow-500" />, label: t('champion_hub'), active: activeTab === 'champion', onClick: () => setActiveTab('champion') }] : []),
-    { icon: <Truck className="w-5 h-5" />, label: 'Book Collection', active: activeTab === 'collection', onClick: () => setActiveTab('collection') },
-    { icon: <ScanLine className="w-5 h-5" />, label: 'Waste Scanner', active: activeTab === 'scanner', onClick: () => setActiveTab('scanner'), tourId: 'nav-scanner' },
-    { icon: <MapPin className="w-5 h-5" />, label: 'Recycling Locator', active: activeTab === 'locator', onClick: () => setActiveTab('locator') },
+    { icon: <Truck className="w-5 h-5" />, label: t('nav_book_collection'), active: activeTab === 'collection', onClick: () => setActiveTab('collection') },
+    { icon: <ScanLine className="w-5 h-5" />, label: t('nav_waste_scanner'), active: activeTab === 'scanner', onClick: () => setActiveTab('scanner'), tourId: 'nav-scanner' },
+    { icon: <MapPin className="w-5 h-5" />, label: t('nav_recycling_locator'), active: activeTab === 'locator', onClick: () => setActiveTab('locator') },
     { icon: <GraduationCap className="w-5 h-5" />, label: t('nav_education'), active: activeTab === 'training', onClick: () => setActiveTab('training') },
     { icon: <AlertTriangle className="w-5 h-5" />, label: t('nav_report'), active: activeTab === 'report', onClick: () => setActiveTab('report'), tourId: 'nav-report' },
     { icon: <History className="w-5 h-5" />, label: t('nav_track'), active: activeTab === 'track', onClick: () => setActiveTab('track'), tourId: 'nav-track' },

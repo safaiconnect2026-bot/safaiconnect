@@ -158,7 +158,7 @@ const ManageAreasTab: React.FC<ManageAreasTabProps> = ({ cityId }) => {
       {/* Header */}
       <div>
         <h2 className="text-3xl font-bold text-gray-900 mb-1">{t('manage_areas') || 'Manage Areas'}</h2>
-        <p className="text-gray-500">Add, edit, or deactivate zones and wards</p>
+        <p className="text-gray-500">{t('manage_areas_subtitle')}</p>
       </div>
 
       {/* Stats */}
@@ -167,28 +167,28 @@ const ManageAreasTab: React.FC<ManageAreasTabProps> = ({ cityId }) => {
           <div className="p-2 rounded-xl bg-white/60"><Map className="w-5 h-5" /></div>
           <div>
             <div className="text-2xl font-bold">{loading ? '...' : activeZones.length}</div>
-            <div className="text-sm font-medium opacity-80">Active Zones</div>
+            <div className="text-sm font-medium opacity-80">{t('active_zones')}</div>
           </div>
         </div>
         <div className="rounded-2xl p-5 border bg-purple-50 text-purple-700 border-purple-100 flex items-center gap-4">
           <div className="p-2 rounded-xl bg-white/60"><LayoutGrid className="w-5 h-5" /></div>
           <div>
             <div className="text-2xl font-bold">{loading ? '...' : wards.filter(w => w.isActive !== false).length}</div>
-            <div className="text-sm font-medium opacity-80">Active Wards</div>
+            <div className="text-sm font-medium opacity-80">{t('active_wards')}</div>
           </div>
         </div>
         <div className="rounded-2xl p-5 border bg-gray-50 text-gray-600 border-gray-200 flex items-center gap-4">
           <div className="p-2 rounded-xl bg-white/60"><Map className="w-5 h-5" /></div>
           <div>
             <div className="text-2xl font-bold">{loading ? '...' : inactiveZones.length}</div>
-            <div className="text-sm font-medium opacity-80">Inactive Zones</div>
+            <div className="text-sm font-medium opacity-80">{t('inactive_zones')}</div>
           </div>
         </div>
         <div className="rounded-2xl p-5 border bg-gray-50 text-gray-600 border-gray-200 flex items-center gap-4">
           <div className="p-2 rounded-xl bg-white/60"><LayoutGrid className="w-5 h-5" /></div>
           <div>
             <div className="text-2xl font-bold">{loading ? '...' : wards.filter(w => w.isActive === false).length}</div>
-            <div className="text-sm font-medium opacity-80">Inactive Wards</div>
+            <div className="text-sm font-medium opacity-80">{t('inactive_wards')}</div>
           </div>
         </div>
       </div>

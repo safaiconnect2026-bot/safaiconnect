@@ -23,8 +23,8 @@ import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ChecklistItem {
   id: string;
-  label: string;
-  description: string;
+  labelKey: string;
+  descKey: string;
 }
 
 interface OnboardingChecklistProps {
@@ -36,46 +36,46 @@ interface OnboardingChecklistProps {
 
 const CHECKLISTS: Record<string, ChecklistItem[]> = {
   citizen: [
-    { id: 'report', label: 'Report your first waste complaint', description: 'Go to Report Issue and submit a complaint with a photo.' },
-    { id: 'scanner', label: 'Try the AI Waste Scanner', description: 'Use the AI Scanner tab to identify waste by photo.' },
-    { id: 'track', label: 'Track a complaint status', description: 'Open Track Status to follow your complaint in real time.' },
-    { id: 'recycle', label: 'Find a recycling location', description: 'Open Recycling Locator to find the nearest drop-off point.' },
-    { id: 'reward', label: 'Earn your first reward points', description: 'Submit a complaint or complete training to earn points.' },
+    { id: 'report', labelKey: 'checklist_citizen_report_label', descKey: 'checklist_citizen_report_desc' },
+    { id: 'scanner', labelKey: 'checklist_citizen_scanner_label', descKey: 'checklist_citizen_scanner_desc' },
+    { id: 'track', labelKey: 'checklist_citizen_track_label', descKey: 'checklist_citizen_track_desc' },
+    { id: 'recycle', labelKey: 'checklist_citizen_recycle_label', descKey: 'checklist_citizen_recycle_desc' },
+    { id: 'reward', labelKey: 'checklist_citizen_reward_label', descKey: 'checklist_citizen_reward_desc' },
   ],
   'green-champion': [
-    { id: 'report', label: 'Report your first waste complaint', description: 'Go to Report Issue and submit a complaint with a photo.' },
-    { id: 'scanner', label: 'Try the AI Waste Scanner', description: 'Use the AI Scanner tab to identify waste by photo.' },
-    { id: 'leaderboard', label: 'Check the community leaderboard', description: 'See your rank among other Green Champions.' },
-    { id: 'recycle', label: 'Find a recycling location', description: 'Open Recycling Locator to find the nearest drop-off point.' },
-    { id: 'training', label: 'Complete an awareness training module', description: 'Go to Training and finish your first module.' },
+    { id: 'report', labelKey: 'checklist_citizen_report_label', descKey: 'checklist_citizen_report_desc' },
+    { id: 'scanner', labelKey: 'checklist_citizen_scanner_label', descKey: 'checklist_citizen_scanner_desc' },
+    { id: 'leaderboard', labelKey: 'checklist_champion_leaderboard_label', descKey: 'checklist_champion_leaderboard_desc' },
+    { id: 'recycle', labelKey: 'checklist_citizen_recycle_label', descKey: 'checklist_citizen_recycle_desc' },
+    { id: 'training', labelKey: 'checklist_champion_training_label', descKey: 'checklist_champion_training_desc' },
   ],
   worker: [
-    { id: 'tasks', label: 'View your assigned tasks', description: 'Open My Tasks to see complaints assigned to you.' },
-    { id: 'proof', label: 'Submit proof for a completed task', description: 'Open Submit Proof and upload a geo-tagged photo.' },
-    { id: 'attendance', label: 'Mark your daily attendance', description: 'Use Attendance to check in when your shift starts.' },
-    { id: 'training', label: 'Complete a training module', description: 'Go to Training and finish your first safety module.' },
-    { id: 'digitalid', label: 'View your Digital ID', description: 'Open Digital ID to see your worker QR code.' },
+    { id: 'tasks', labelKey: 'checklist_worker_tasks_label', descKey: 'checklist_worker_tasks_desc' },
+    { id: 'proof', labelKey: 'checklist_worker_proof_label', descKey: 'checklist_worker_proof_desc' },
+    { id: 'attendance', labelKey: 'checklist_worker_attendance_label', descKey: 'checklist_worker_attendance_desc' },
+    { id: 'training', labelKey: 'checklist_worker_training_label', descKey: 'checklist_worker_training_desc' },
+    { id: 'digitalid', labelKey: 'checklist_worker_digitalid_label', descKey: 'checklist_worker_digitalid_desc' },
   ],
   admin: [
-    { id: 'overview', label: 'Review the dashboard overview', description: 'Check Overview for live complaint and worker stats.' },
-    { id: 'complaint', label: 'Manage a citizen complaint', description: 'Open Complaints and assign or update a complaint.' },
-    { id: 'worker', label: 'Assign a worker to a task', description: 'Select an unassigned complaint and assign a worker.' },
-    { id: 'verify', label: 'Verify completed work', description: 'Open Work Verification and approve a submission.' },
-    { id: 'salary', label: 'Check salary tracking', description: 'Open Salary Tracking to review worker payroll data.' },
+    { id: 'overview', labelKey: 'checklist_admin_overview_label', descKey: 'checklist_admin_overview_desc' },
+    { id: 'complaint', labelKey: 'checklist_admin_complaint_label', descKey: 'checklist_admin_complaint_desc' },
+    { id: 'worker', labelKey: 'checklist_admin_worker_label', descKey: 'checklist_admin_worker_desc' },
+    { id: 'verify', labelKey: 'checklist_admin_verify_label', descKey: 'checklist_admin_verify_desc' },
+    { id: 'salary', labelKey: 'checklist_admin_salary_label', descKey: 'checklist_admin_salary_desc' },
   ],
   'zonal-admin': [
-    { id: 'overview', label: 'Review zone performance metrics', description: 'Open Overview to see your zone\'s live stats.' },
-    { id: 'complaints', label: 'Review zone complaints', description: 'Open Complaints and filter by ward.' },
-    { id: 'workers', label: 'Check zone worker performance', description: 'Open Workers to see task completion and ratings.' },
-    { id: 'verify', label: 'Approve zone work submission', description: 'Open Work Verification and approve a worker\'s proof.' },
-    { id: 'wards', label: 'Review ward configuration', description: 'Open Manage Wards to see your zone\'s ward setup.' },
+    { id: 'overview', labelKey: 'checklist_zonal_overview_label', descKey: 'checklist_zonal_overview_desc' },
+    { id: 'complaints', labelKey: 'checklist_zonal_complaints_label', descKey: 'checklist_zonal_complaints_desc' },
+    { id: 'workers', labelKey: 'checklist_zonal_workers_label', descKey: 'checklist_zonal_workers_desc' },
+    { id: 'verify', labelKey: 'checklist_zonal_verify_label', descKey: 'checklist_zonal_verify_desc' },
+    { id: 'wards', labelKey: 'checklist_zonal_wards_label', descKey: 'checklist_zonal_wards_desc' },
   ],
   superadmin: [
-    { id: 'overview', label: 'Review system-wide statistics', description: 'Open Overview for platform-wide metrics.' },
-    { id: 'admins', label: 'Manage city administrators', description: 'Open Admin Management to review or create admins.' },
-    { id: 'locations', label: 'Review city/zone/ward hierarchy', description: 'Open Locations to verify the geographic structure.' },
-    { id: 'reports', label: 'Check platform analytics', description: 'Open Reports and export a city-level summary.' },
-    { id: 'inventory', label: 'Review inventory', description: 'Open Inventory to check equipment and resource levels.' },
+    { id: 'overview', labelKey: 'checklist_super_overview_label', descKey: 'checklist_super_overview_desc' },
+    { id: 'admins', labelKey: 'checklist_super_admins_label', descKey: 'checklist_super_admins_desc' },
+    { id: 'locations', labelKey: 'checklist_super_locations_label', descKey: 'checklist_super_locations_desc' },
+    { id: 'reports', labelKey: 'checklist_super_reports_label', descKey: 'checklist_super_reports_desc' },
+    { id: 'inventory', labelKey: 'checklist_super_inventory_label', descKey: 'checklist_super_inventory_desc' },
   ],
 };
 
@@ -240,11 +240,11 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ userId, role 
                     </div>
                     <div>
                       <p className={`text-xs font-semibold leading-tight ${isChecked ? 'text-emerald-700 dark:text-emerald-400 line-through' : 'text-gray-800 dark:text-gray-200'}`}>
-                        {item.label}
+                        {t(item.labelKey)}
                       </p>
                       {!isChecked && (
                         <p className="text-gray-400 dark:text-gray-500 text-[11px] mt-0.5 leading-relaxed">
-                          {item.description}
+                          {t(item.descKey)}
                         </p>
                       )}
                     </div>

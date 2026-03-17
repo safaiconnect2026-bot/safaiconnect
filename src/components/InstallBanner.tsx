@@ -6,12 +6,13 @@ const DISMISSED_KEY = 'pwa_install_banner_dismissed';
 
 const InstallBanner: React.FC = () => {
     const { isInstallable, installApp, isStandalone, isIOS } = usePWAInstall();
+    const isNativeApp = !!(window as any).Capacitor || window.location.protocol === 'capacitor:';
     const [dismissed, setDismissed] = useState(false);
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         const wasDismissed = sessionStorage.getItem(DISMISSED_KEY) === '1';
-        if (wasDismissed) return;
+        if (wasDismissed || isNativeApp) return;
 
         // Show after a short delay so the page has loaded
         const timer = setTimeout(() => {
@@ -21,16 +22,16 @@ const InstallBanner: React.FC = () => {
         }, 2500);
 
         return () => clearTimeout(timer);
-    }, [isInstallable, isIOS, isStandalone]);
+    }, [isInstallable, isIOS, isStandalone, isNativeApp]);
 
     // Also show when isInstallable becomes true after initial render (Android)
     useEffect(() => {
         const wasDismissed = sessionStorage.getItem(DISMISSED_KEY) === '1';
-        if (wasDismissed || dismissed) return;
+        if (wasDismissed || dismissed || isNativeApp) return;
         if (isInstallable && !isStandalone) {
             setVisible(true);
         }
-    }, [isInstallable, isStandalone, dismissed]);
+    }, [isInstallable, isStandalone, dismissed, isNativeApp]);
 
     const handleDismiss = () => {
         setVisible(false);

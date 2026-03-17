@@ -152,7 +152,7 @@ const WorkersTab: React.FC = () => {
     <div className="space-y-8 animate-fade-in">
       <div>
         <h2 className="text-3xl font-bold text-gray-900 mb-2">{t('workers')}</h2>
-        <p className="text-gray-600">Monitor and manage the field workforce</p>
+        <p className="text-gray-600">{t('monitor_workers_desc')}</p>
       </div>
 
       <div className="flex justify-end">
@@ -161,7 +161,7 @@ const WorkersTab: React.FC = () => {
           className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
         >
           <UserPlus className="w-5 h-5" />
-          Add Worker
+          {t('add_worker')}
         </button>
       </div>
 
@@ -174,14 +174,14 @@ const WorkersTab: React.FC = () => {
           color="blue"
         />
         <StatCard
-          title="On Duty Now"
+          title={t('on_duty_now')}
           value={loading ? '...' : activeNow.toString()}
           icon={<UserCheck className="w-6 h-6" />}
-          trend={{ value: 'Checked in today', isPositive: activeNow > 0 }}
+          trend={{ value: t('checked_in_today'), isPositive: activeNow > 0 }}
           color="green"
         />
         <StatCard
-          title="Zones Covered"
+          title={t('zones_covered')}
           value={loading ? '...' : (uniqueZones > 0 ? uniqueZones.toString() : '—')}
           icon={<MapPin className="w-6 h-6" />}
           color="purple"
@@ -196,7 +196,7 @@ const WorkersTab: React.FC = () => {
 
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-gray-900">Worker Roster</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('worker_roster')}</h3>
           <div className="text-sm text-gray-500">{workers.length} registered workers</div>
         </div>
 
