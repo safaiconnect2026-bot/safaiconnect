@@ -13,6 +13,7 @@ import { useToast } from '../../../contexts/ToastContext';
 import { useNotifications } from '../../../contexts/NotificationContext';
 import { sendPushNotification } from '../../../lib/fcm';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { useScopedComplaints } from '../../../hooks/useScopedComplaints';
 
 interface Complaint {
   id: string;
@@ -56,9 +57,9 @@ const ZonalComplaintsTab: React.FC<ZonalComplaintsTabProps> = ({ zoneId }) => {
   const { t } = useLanguage();
   const { error: toastError, success: toastSuccess } = useToast();
   const { addNotification } = useNotifications();
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
+  const { complaints: rawComplaints, loading } = useScopedComplaints();
+  const complaints = rawComplaints as Complaint[];
   const [workers, setWorkers] = useState<Worker[]>([]);
-  const [loading, setLoading] = useState(true);
 
   // Modal states
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
@@ -98,32 +99,6 @@ const ZonalComplaintsTab: React.FC<ZonalComplaintsTabProps> = ({ zoneId }) => {
     return () => { unsubWorkers(); };
   }, [zoneId]);
 
-  // Separate effect to merge workers + complaints
-  useEffect(() => {
-    if (!zoneId) return;
-
-    // Query complaints that belong to this zone directly (set by citizen at submission)
-    const complaintsQ = query(
-      collection(db, 'complaints'),
-      where('zoneId', '==', zoneId),
-    );
-
-    const unsubComplaints = onSnapshot(complaintsQ, (snap) => {
-      const fetched: Complaint[] = [];
-      snap.forEach((d) => {
-        const data = d.data() as Omit<Complaint, 'id'>;
-        fetched.push({ id: d.id, ...data });
-      });
-      fetched.sort((a, b) => {
-        if (!a.createdAt || !b.createdAt) return 0;
-        return b.createdAt.toMillis() - a.createdAt.toMillis();
-      });
-      setComplaints(fetched);
-      setLoading(false);
-    });
-
-    return () => { unsubComplaints(); };
-  }, [zoneId]);
 
   const toggleDropdown = (id: string) => setActiveDropdown(activeDropdown === id ? null : id);
 

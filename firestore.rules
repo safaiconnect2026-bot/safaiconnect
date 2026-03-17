@@ -33,6 +33,18 @@ service cloud.firestore {
       return isAuthenticated() && (getUserRole() == 'Worker' || getUserRole() == 'worker' || isAdmin());
     }
 
+    function getUserCityId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.cityId;
+    }
+
+    function getUserZoneId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.zoneId;
+    }
+
+    function getUserWardId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.wardId;
+    }
+
     // ── `users` collection ────────────────────────────────────────────────────
     match /users/{userId} {
       // Any signed-in user can read profiles (needed for worker lookups, etc.)
@@ -70,10 +82,23 @@ service cloud.firestore {
     }
 
     // ── `complaints` collection ───────────────────────────────────────────────
+    // Read and update are scoped by Location DNA: each role can only access
+    // complaints within their assigned city / zone / ward, or their own.
     match /complaints/{complaintId} {
-      allow read:   if isAuthenticated();
+      allow read: if isAuthenticated() && (
+        isSuperadmin() ||
+        (getUserRole() == 'Admin'       && resource.data.cityId == getUserCityId()) ||
+        (getUserRole() == 'Zonal-Admin' && resource.data.zoneId == getUserZoneId()) ||
+        (getUserRole() == 'Worker'      && resource.data.wardId == getUserWardId()) ||
+        resource.data.citizenId == request.auth.uid
+      );
       allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        isSuperadmin() ||
+        (getUserRole() == 'Admin'       && resource.data.cityId == getUserCityId()) ||
+        (getUserRole() == 'Zonal-Admin' && resource.data.zoneId == getUserZoneId()) ||
+        (getUserRole() == 'Worker'      && resource.data.wardId == getUserWardId())
+      );
       allow delete: if isAdmin();
     }
 

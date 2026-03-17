@@ -10,6 +10,7 @@ import { useToast } from '../../../contexts/ToastContext';
 import { useNotifications } from '../../../contexts/NotificationContext';
 import { sendPushNotification } from '../../../lib/fcm';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { useScopedComplaints } from '../../../hooks/useScopedComplaints';
 
 interface Complaint {
     id: string;
@@ -49,9 +50,9 @@ const ComplaintsTab: React.FC = () => {
     const { t } = useLanguage();
     const { error: toastError } = useToast();
     const { addNotification } = useNotifications();
-    const [complaints, setComplaints] = useState<Complaint[]>([]);
+    const { complaints: rawComplaints, loading } = useScopedComplaints();
+    const complaints = rawComplaints as Complaint[];
     const [workers, setWorkers] = useState<Worker[]>([]);
-    const [loading, setLoading] = useState(true);
 
     // Modal states
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
@@ -68,25 +69,6 @@ const ComplaintsTab: React.FC = () => {
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // Fetch complaints in real-time
-    useEffect(() => {
-        const q = query(collection(db, 'complaints'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const fetched: Complaint[] = [];
-            snapshot.forEach((docSnap) => {
-                fetched.push({ id: docSnap.id, ...docSnap.data() } as Complaint);
-            });
-            // Sort by latest
-            fetched.sort((a, b) => {
-                if (!a.createdAt || !b.createdAt) return 0;
-                return b.createdAt.toMillis() - a.createdAt.toMillis();
-            });
-            setComplaints(fetched);
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
 
     // Fetch workers once
     useEffect(() => {

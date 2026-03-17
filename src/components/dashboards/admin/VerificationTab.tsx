@@ -9,9 +9,11 @@ import {
     getDoc, updateDoc, serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
+import { sendPushNotification } from '../../../lib/fcm';
 import { useToast } from '../../../contexts/ToastContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { useNotifications } from '../../../contexts/NotificationContext';
 
 interface VerificationEntry {
     assignmentId: string;
@@ -25,6 +27,7 @@ interface VerificationEntry {
     evidenceImageUrl?: string;
     evidenceNotes?: string;
     complaintStatus: string;
+    citizenId?: string;
     zonalApproval?: {
         approved: boolean;
         approvedBy: string;
@@ -39,6 +42,7 @@ const VerificationTab: React.FC = () => {
     const { t } = useLanguage();
     const { error: toastError } = useToast();
     const { userProfile } = useAuth();
+    const { addNotification } = useNotifications();
     const [entries, setEntries] = useState<VerificationEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [approvedCount, setApprovedCount] = useState(0);
@@ -101,6 +105,7 @@ const VerificationTab: React.FC = () => {
                         evidenceImageUrl: evidence?.imageUrl,
                         evidenceNotes: evidence?.notes,
                         complaintStatus: complaint.status,
+                        citizenId: complaint.citizenId || '',
                         zonalApproval: a.zonalApproval,
                         wardName: complaint.wardName || '',
                         zoneName: complaint.zoneName || '',
@@ -138,6 +143,34 @@ const VerificationTab: React.FC = () => {
                 },
                 verifiedAt: serverTimestamp(),
             });
+
+            // Notify the citizen their issue is resolved
+            if (entry.citizenId) {
+                const complaintLabel = entry.complaintTitle || 'Your complaint';
+                // In-app notification
+                await addNotification(
+                    entry.citizenId,
+                    `✅ ${complaintLabel} has been resolved. Please rate the work done.`,
+                    'complaint_resolved',
+                    entry.complaintId,
+                );
+                // Push notification
+                try {
+                    const citizenSnap = await getDoc(doc(db, 'users', entry.citizenId));
+                    const fcmToken = citizenSnap.data()?.fcmToken as string | undefined;
+                    if (fcmToken) {
+                        await sendPushNotification(
+                            [fcmToken],
+                            'Issue Resolved! ✅',
+                            `${complaintLabel} has been resolved. Tap to rate the work.`,
+                            { complaintId: entry.complaintId },
+                        );
+                    }
+                } catch (pushErr) {
+                    console.warn('[VerificationTab] Push notification failed:', pushErr);
+                }
+            }
+
             setIsModalOpen(false);
             setSelectedEntry(null);
         } catch (e) {

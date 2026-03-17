@@ -47,6 +47,7 @@ import { useSpeechToText } from '../../hooks/useSpeechToText';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCascadingLocation } from '../../hooks/useCascadingLocation';
 import { useAutoWardDetection } from '../../hooks/useAutoWardDetection';
+import { useScopedComplaints } from '../../hooks/useScopedComplaints';
 
 
 interface CitizenDashboardProps {
@@ -153,40 +154,15 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
     status: string;
     date: any;
   }
-  const [myComplaints, setMyComplaints] = useState<Complaint[]>([]);
-  const [loadingComplaints, setLoadingComplaints] = useState(false);
-
-  const [ratingModalOpen, setRatingModalOpen] = useState(false);
-  const [complaintToRate, setComplaintToRate] = useState<string | null>(null);
-  const [rating, setRating] = useState(0);
-  const [ratingNotes, setRatingNotes] = useState('');
-  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
-
-  React.useEffect(() => {
-    if (!user) return; // Removed activeTab !== 'track' check so it loads on mount
-    setLoadingComplaints(true);
-    const q = query(collection(db, 'complaints'), where('citizenId', '==', user.id));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetched: Complaint[] = [];
-      snapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        fetched.push({
-          id: docSnap.id,
-          title: data.title || data.category || 'Unknown Issue',
-          category: data.category || 'General',
-          location: data.location || 'Unknown Location',
-          status: data.status || 'SUBMITTED',
-          date: data.createdAt
-        });
-      });
-      fetched.sort((a, b) => (b.date?.toMillis() || 0) - (a.date?.toMillis() || 0));
-      setMyComplaints(fetched);
-      setLoadingComplaints(false);
-    }, () => {
-      setLoadingComplaints(false);
-    });
-    return () => unsubscribe();
-  }, [user]);
+  const { complaints: rawComplaints, loading: loadingComplaints } = useScopedComplaints();
+  const myComplaints: Complaint[] = rawComplaints.map(c => ({
+    id: c.id,
+    title: c.title || c.category || 'Unknown Issue',
+    category: c.category || 'General',
+    location: c.location || 'Unknown Location',
+    status: c.status || 'SUBMITTED',
+    date: c.createdAt,
+  }));
 
   // Load training progress for stats from Firestore
   const [trainingProgress, setTrainingProgress] = useState(0);
@@ -360,6 +336,11 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
             : p
         )
       );
+
+      // Auto-detect ward from photo GPS if not yet detected via the GPS button
+      if (wardDetection.loaded && !wardDetection.detected && !locationSelector.selectedWardId) {
+        wardDetection.detectWard(latitude, longitude);
+      }
     } catch (e) {
       console.warn("GPS capture failed", e);
       // Mark as done without coords
@@ -536,8 +517,14 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
       // Grab GPS coords from the first geo-tagged photo (if any)
       const geoPhoto = photos.find(p => p.lat != null);
 
+      // Last-resort: if ward still undetected but we have a geotagged photo, try to detect now
+      let photoDetected = null;
+      if (!wardDetection.detected && !locationSelector.selectedWardId && geoPhoto?.lat != null) {
+        photoDetected = wardDetection.detectWard(geoPhoto.lat, geoPhoto.lng!);
+      }
+
       // Get ward/zone/city names for display (prefer manual selection, fallback to auto-detected)
-      const det = wardDetection.detected;
+      const det = wardDetection.detected ?? photoDetected;
       const finalCityId = locationSelector.selectedCityId || det?.cityId || '';
       const finalZoneId = locationSelector.selectedZoneId || det?.zoneId || '';
       const finalWardId = locationSelector.selectedWardId || det?.wardId || '';
