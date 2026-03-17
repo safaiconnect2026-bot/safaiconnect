@@ -4,7 +4,7 @@ import {
     Trash2, Eye, UserPlus, X, Loader2
 } from 'lucide-react';
 import StatCard from '../../common/StatCard';
-import { collection, query, onSnapshot, doc, updateDoc, getDocs, getDoc, where, addDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { collection, query, doc, updateDoc, getDocs, getDoc, where, addDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useToast } from '../../../contexts/ToastContext';
 import { useNotifications } from '../../../contexts/NotificationContext';

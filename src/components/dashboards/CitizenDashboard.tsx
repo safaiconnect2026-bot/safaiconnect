@@ -140,6 +140,11 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
   const DRAFT_KEY = `draft_complaint_${user?.id}`;
   const [submitSuccess, setSubmitSuccess] = useState('');
   const [submitError, setSubmitError] = useState('');
+  const [ratingModalOpen, setRatingModalOpen] = useState(false);
+  const [complaintToRate, setComplaintToRate] = useState<string | null>(null);
+  const [rating, setRating] = useState(0);
+  const [ratingNotes, setRatingNotes] = useState('');
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
   const { t, language } = useLanguage();
   const { isListening, startStop: toggleMic } = useSpeechToText(
     language,
