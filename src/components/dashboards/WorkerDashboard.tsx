@@ -542,7 +542,7 @@ const WorkerDashboard: React.FC<WorkerDashboardProps> = ({ user, onLogout }) => 
                 </button>
               </div>
             ) : (
-              <div className="grid lg:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-3 gap-6">
                 {/* Left Column: Task Context */}
                 <div className="lg:col-span-1 space-y-6">
                   <div className="bg-white rounded-2xl p-6 shadow-sm border border-blue-100 relative overflow-hidden">

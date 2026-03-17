@@ -1,19 +1,29 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
-import SuperadminDashboard from './components/dashboards/SuperadminDashboard';
-import AdminDashboard from './components/dashboards/AdminDashboard';
-import WorkerDashboard from './components/dashboards/WorkerDashboard';
-import GreenChampionDashboard from './components/dashboards/GreenChampionDashboard';
-import CitizenDashboard from './components/dashboards/CitizenDashboard';
-import ZonalAdminDashboard from './components/dashboards/ZonalAdminDashboard';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
 import { auth } from './lib/firebase';
 import { signOut } from 'firebase/auth';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import InstallBanner from './components/InstallBanner';
+
+const SuperadminDashboard = lazy(() => import('./components/dashboards/SuperadminDashboard'));
+const AdminDashboard = lazy(() => import('./components/dashboards/AdminDashboard'));
+const WorkerDashboard = lazy(() => import('./components/dashboards/WorkerDashboard'));
+const GreenChampionDashboard = lazy(() => import('./components/dashboards/GreenChampionDashboard'));
+const CitizenDashboard = lazy(() => import('./components/dashboards/CitizenDashboard'));
+const ZonalAdminDashboard = lazy(() => import('./components/dashboards/ZonalAdminDashboard'));
+
+const DashboardFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4" />
+      <p className="text-gray-500 text-sm">Loading dashboard...</p>
+    </div>
+  </div>
+);
 
 export type UserRole = 'superadmin' | 'admin' | 'zonal-admin' | 'green-champion' | 'worker' | 'citizen';
 
@@ -41,7 +51,6 @@ type ViewState = 'landing' | 'login' | 'signup';
 
 function App() {
   const { currentUser, userProfile, loading, noDocument } = useAuth();
-
   const [currentView, setCurrentView] = useState<ViewState>(() => {
     return (localStorage.getItem(LS_VIEW_KEY) as ViewState) || 'landing';
   });
@@ -184,9 +193,9 @@ function App() {
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <div>
+        <Suspense fallback={<DashboardFallback />}>
           {renderDashboard()}
-        </div>
+        </Suspense>
       </div>
       <SpeedInsights />
       <InstallBanner />

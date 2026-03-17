@@ -109,7 +109,7 @@ const ZonalOverviewTab: React.FC<ZonalOverviewTabProps> = ({ zoneId, onNavigate 
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard icon={<ClipboardList className="w-6 h-6" />} title={t('total_complaints') || 'Total Complaints'} value={stats.totalComplaints} color="blue" />
         <StatCard icon={<Clock className="w-6 h-6" />} title={t('pending') || 'Pending'} value={stats.pendingComplaints} color="yellow" />
         <StatCard icon={<TrendingUp className="w-6 h-6" />} title={t('in_progress') || 'In Progress'} value={stats.inProgress} color="purple" />
@@ -117,7 +117,7 @@ const ZonalOverviewTab: React.FC<ZonalOverviewTabProps> = ({ zoneId, onNavigate 
       </div>
 
       {/* Two-column: Priority Actions + Zone Vitals */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Priority Actions */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-5">
           <div className="flex items-center justify-between mb-4">

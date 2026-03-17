@@ -54,20 +54,30 @@ const StatCard: React.FC<StatCardProps> = ({
   const classes = colorClasses[color] || colorClasses.green;
 
   return (
-    <div className={`${classes.bg} rounded-2xl p-6 border border-gray-200 ${classes.border} border-t-4 hover:shadow-lg transition-all duration-200 hover:-translate-y-1`}>
+    <div
+      className={`${classes.bg} rounded-2xl p-6 border border-gray-200 ${classes.border} border-t-4 hover:shadow-lg transition-all duration-200 motion-safe:hover:-translate-y-1`}
+      role="region"
+      aria-label={`${title}: ${value}${trend ? `, trend: ${trend.value}` : ''}`}
+    >
       <div className="flex items-center justify-between mb-4">
-        <div className={`flex items-center justify-center w-12 h-12 ${classes.icon} rounded-xl`}>
+        <div
+          className={`flex items-center justify-center w-12 h-12 ${classes.icon} rounded-xl`}
+          aria-hidden="true"
+        >
           {icon}
         </div>
         {trend && (
-          <div className={`text-sm font-semibold ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
+          <div
+            className={`text-sm font-semibold ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}
+            aria-label={`Trend: ${trend.isPositive ? 'up' : 'down'} ${trend.value}`}
+          >
             {trend.isPositive ? '+' : ''}{trend.value}
           </div>
         )}
       </div>
       <div>
         <h3 className="text-gray-600 text-sm font-medium mb-1">{title}</h3>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        <p className="text-2xl font-bold text-gray-900" aria-live="polite">{value}</p>
       </div>
     </div>
   );

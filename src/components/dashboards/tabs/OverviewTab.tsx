@@ -212,7 +212,7 @@ const OverviewTab: React.FC<{ onNavigate?: (tab: string) => void }> = ({ onNavig
             </div>
 
             {/* Secondary Metrics */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                     { label: 'Total Admins', value: stats.totalAdmins, icon: Shield, cls: 'bg-amber-50 text-amber-700 border-amber-100', tab: 'admins' },
                     { label: 'Total Workers', value: stats.totalWorkers, icon: Users, cls: 'bg-purple-50 text-purple-700 border-purple-100', tab: 'workers' },
@@ -235,7 +235,7 @@ const OverviewTab: React.FC<{ onNavigate?: (tab: string) => void }> = ({ onNavig
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Recent Activity */}
                 <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">

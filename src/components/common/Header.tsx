@@ -357,10 +357,10 @@ const Header: React.FC<HeaderProps> = ({ user, toggleSidebar, onProfileClick, on
           {/* Left: logo + hamburger */}
           <div className="flex items-center gap-3">
             {/* Logo - visible on mobile; desktop shows logo in sidebar instead */}
-            <img src="/logo.png" alt="SafaiConnect" className="h-10 w-auto max-w-[140px] object-contain lg:hidden" />
+            <img src="/logo.png" alt="SafaiConnect" className="h-10 w-auto max-w-[140px] object-contain md:hidden" />
             <button
               onClick={toggleSidebar}
-              className="lg:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500"
+              className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500"
             >
               <Menu className="w-6 h-6" />
             </button>

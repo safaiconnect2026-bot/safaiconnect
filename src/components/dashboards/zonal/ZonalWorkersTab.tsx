@@ -156,7 +156,7 @@ const ZonalWorkersTab: React.FC<ZonalWorkersTabProps> = ({ zoneId }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard title={t('total_workers') || 'Total Workers'} value={workers.length} icon={<Users className="w-6 h-6" />} color="blue" />
         <StatCard title={t('present_today') || 'Present Today'} value={activeCount} icon={<UserCheck className="w-6 h-6" />} color="green" />
         <StatCard title={t('absent') || 'Absent'} value={workers.length - activeCount} icon={<Users className="w-6 h-6" />} color="red" />

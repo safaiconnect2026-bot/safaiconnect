@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useRef } from 'react';
 import { LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -29,6 +29,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   onLogout
 }) => {
   const { t } = useLanguage();
+  const sidebarRef = useRef<HTMLElement>(null);
+
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
     if (isOpen) {
@@ -50,12 +52,42 @@ const Sidebar: React.FC<SidebarProps> = ({
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  // Focus trap when mobile overlay is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const sidebar = sidebarRef.current;
+    if (!sidebar) return;
+
+    const focusable = Array.from(
+      sidebar.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    );
+    if (!focusable.length) return;
+
+    const first = focusable[0];
+    const last  = focusable[focusable.length - 1];
+    first.focus();
+
+    const trap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last)  { e.preventDefault(); first.focus(); }
+      }
+    };
+
+    document.addEventListener('keydown', trap);
+    return () => document.removeEventListener('keydown', trap);
+  }, [isOpen]);
+
   return (
     <>
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+          className="md:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -63,18 +95,20 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar */}
       <aside
+        ref={sidebarRef}
+        aria-label={t('navigation') || 'Navigation'}
         className={[
           'fixed left-0 top-16 z-40',
           'h-[calc(100vh-4rem)]',
-          isCollapsed ? 'lg:w-20 w-80' : 'w-80',
+          isCollapsed ? 'md:w-20 w-80' : 'w-80',
           'bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-sm flex flex-col',
           'transform transition-all duration-300 ease-in-out',
-          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         ].join(' ')}
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
       >
-        {/* Desktop logo — full when expanded, icon-only when collapsed */}
-        <div className={`hidden lg:flex items-center border-b border-gray-100 dark:border-gray-700 ${isCollapsed ? 'justify-center px-2 py-3' : 'px-5 py-3'}`}>
+        {/* Desktop/tablet logo — full when expanded, icon-only when collapsed */}
+        <div className={`hidden md:flex items-center border-b border-gray-100 dark:border-gray-700 ${isCollapsed ? 'justify-center px-2 py-3' : 'px-5 py-3'}`}>
           {isCollapsed ? (
             <img src="/pwa-192x192.png" alt="SafaiConnect" className="h-9 w-9 rounded-xl object-cover" />
           ) : (
@@ -83,20 +117,20 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         <nav className="p-4 sm:p-6 flex-1 overflow-y-auto overscroll-contain touch-pan-y mt-2">
-          <ul className="space-y-2">
+          <ul className="space-y-2" role="list">
             {items.map((item, index) => (
               <li key={index}>
                 <button
                   onClick={() => {
                     item.onClick?.();
-                    // Don't close mobile menu if we're just toggling something else,
-                    // but since items are navigation, we should close it.
                     onClose();
                   }}
                   {...(item.tourId ? { 'data-tour': item.tourId } : {})}
+                  aria-label={item.label}
+                  aria-current={item.active ? 'page' : undefined}
                   className={[
                     'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200',
-                    isCollapsed ? 'lg:justify-center lg:px-0' : '',
+                    isCollapsed ? 'md:justify-center md:px-0' : '',
                     item.active
                       ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white',
@@ -106,12 +140,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <div className={`flex-shrink-0 ${item.active ? 'text-white' : 'text-gray-500'}`}>
                     {item.icon}
                   </div>
-                  <span className={`font-medium truncate ${isCollapsed ? 'lg:hidden' : ''}`}>{item.label}</span>
+                  <span className={`font-medium truncate ${isCollapsed ? 'md:hidden' : ''}`}>{item.label}</span>
                   {item.active && !isCollapsed && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white/50" />
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white/50" aria-hidden="true" />
                   )}
                   {item.active && isCollapsed && (
-                    <div className="hidden lg:block absolute right-2 w-1.5 h-1.5 rounded-full bg-white/50" />
+                    <div className="hidden md:block absolute right-2 w-1.5 h-1.5 rounded-full bg-white/50" aria-hidden="true" />
                   )}
                 </button>
               </li>
@@ -123,7 +157,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex flex-col gap-2 bg-white dark:bg-gray-800 z-10">
           <button
             onClick={onToggleCollapse}
-            className="hidden lg:flex w-full items-center justify-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 transition-colors"
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            className="hidden md:flex w-full items-center justify-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 transition-colors"
           >
             {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
             {!isCollapsed && <span className="font-medium text-sm">Collapse</span>}
@@ -132,14 +167,15 @@ const Sidebar: React.FC<SidebarProps> = ({
           {onLogout && (
             <button
               onClick={onLogout}
+              aria-label={t('logout') || 'Logout'}
               className={[
                 "flex items-center gap-3 px-4 py-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors",
-                isCollapsed ? "lg:justify-center lg:px-0" : "w-full text-left"
+                isCollapsed ? "md:justify-center md:px-0" : "w-full text-left"
               ].join(' ')}
               title={isCollapsed ? t('logout') : undefined}
             >
-              <LogOut className="w-5 h-5 flex-shrink-0" />
-              <span className={`font-medium ${isCollapsed ? 'lg:hidden' : ''}`}>{t('logout')}</span>
+              <LogOut className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
+              <span className={`font-medium ${isCollapsed ? 'md:hidden' : ''}`}>{t('logout')}</span>
             </button>
           )}
         </div>

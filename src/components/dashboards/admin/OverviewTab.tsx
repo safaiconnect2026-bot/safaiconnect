@@ -133,7 +133,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate, cityId }) => {
       </div>
 
       {/* ── 4-card metrics row ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           title={t('total_complaints')}
           value={stats.loading ? '...' : stats.totalComplaints.toString()}
@@ -164,7 +164,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ onNavigate, cityId }) => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* ── Priority Actions ─────────────────────────────────────────────── */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">

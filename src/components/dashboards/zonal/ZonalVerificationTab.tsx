@@ -191,7 +191,7 @@ const ZonalVerificationTab: React.FC<ZonalVerificationTabProps> = ({ zoneId }) =
         <p className="text-gray-500 dark:text-gray-400 mt-1">{t('zone_verification_subtitle') || 'Review worker completions — your approval will be forwarded to Admin for final verification'}</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard title={t('pending_review') || 'Pending Review'} value={pendingEntries.length} icon={<Clock className="w-6 h-6" />} color="yellow" />
         <StatCard title={t('approved') || 'Approved'} value={approvedCount} icon={<CheckCircle className="w-6 h-6" />} color="green" />
         <StatCard title={t('rejected') || 'Rejected'} value={rejectedCount} icon={<XCircle className="w-6 h-6" />} color="red" />

@@ -47,6 +47,7 @@ import { useSpeechToText } from '../../hooks/useSpeechToText';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCascadingLocation } from '../../hooks/useCascadingLocation';
 import { useAutoWardDetection } from '../../hooks/useAutoWardDetection';
+import { useRealTimeLocation } from '../../hooks/useRealTimeLocation';
 import { useScopedComplaints } from '../../hooks/useScopedComplaints';
 
 
@@ -382,59 +383,45 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
 
   // ----------- GPS location state -----------
   const [location, setLocation] = useState('');
-  const [locationLoading, setLocationLoading] = useState(false);
+  // 'idle' | 'asking' — controls consent banner visibility
+  const [locationConsent, setLocationConsent] = useState<'idle' | 'asking'>('idle');
 
-  const fetchLocation = async () => {
-    setLocationLoading(true);
-    try {
-      let latitude, longitude;
-
-      if (Capacitor.isNativePlatform()) {
-        const permission = await CapGeolocation.checkPermissions();
-        if (permission.location !== 'granted') {
-          await CapGeolocation.requestPermissions();
-        }
-        const position = await CapGeolocation.getCurrentPosition({ enableHighAccuracy: true });
-        latitude = position.coords.latitude;
-        longitude = position.coords.longitude;
+  const realTimeLocation = useRealTimeLocation({
+    geocodeThresholdMetres: 30,
+    onUpdate: (geo) => {
+      // Fill the location text field
+      if (geo.formattedAddress) {
+        setLocation(geo.formattedAddress);
       } else {
-        if (!navigator.geolocation) {
-          toastWarning('Geolocation is not supported by your browser.');
-          setLocationLoading(false);
-          return;
-        }
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
-        });
-        latitude = position.coords.latitude;
-        longitude = position.coords.longitude;
+        setLocation(`${geo.lat.toFixed(5)}, ${geo.lng.toFixed(5)}`);
       }
 
-      let cityHint = '';
-      try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-        );
-        const data = await res.json();
-        setLocation(data.display_name || `${latitude}, ${longitude}`);
-        // Extract city name for ward detection fallback
-        cityHint = data.address?.city || data.address?.town || data.address?.state_district || '';
-      } catch {
-        setLocation(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
-      }
-
-      // Auto-detect ward/zone/city from GPS coordinates
-      const result = wardDetection.detectWard(latitude, longitude, cityHint);
-      if (result) {
-        locationSelector.applyAutoDetected(result.cityId, result.zoneId, result.wardId);
+      // Run ward detection using coords + city name hint from Google Maps
+      const cityHint = geo.city ?? geo.district ?? '';
+      const detected = wardDetection.detectWard(geo.lat, geo.lng, cityHint);
+      if (detected) {
+        locationSelector.applyAutoDetected(detected.cityId, detected.zoneId, detected.wardId);
         setManualWardMode(false);
       }
-    } catch (e) {
-      console.warn('Unable to fetch location', e);
-      toastWarning('Unable to fetch location. Please allow location access.');
-    } finally {
-      setLocationLoading(false);
+    },
+  });
+
+  const handleAutoDetectClick = () => {
+    if (realTimeLocation.status === 'tracking') {
+      realTimeLocation.stop();
+      return;
     }
+    // Ask for consent if not yet granted this session
+    setLocationConsent('asking');
+  };
+
+  const handleConsentAllow = () => {
+    setLocationConsent('idle');
+    realTimeLocation.start();
+  };
+
+  const handleConsentDismiss = () => {
+    setLocationConsent('idle');
   };
 
   // ----------- Voice – Read Aloud for Dashboard summary -----------
@@ -566,6 +553,7 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
       locationSelector.setSelectedWardId('');
       wardDetection.clearDetected();
       setManualWardMode(false);
+      realTimeLocation.stop();
 
       // Clear success message after 4s
       setTimeout(() => setSubmitSuccess(''), 4000);
@@ -618,7 +606,7 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
               </button>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatCard
                 title={t('stat_reports')}
                 value={totalReports.toString()}
@@ -837,6 +825,76 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     {t('location')}
                   </label>
+
+                  {/* Consent banner */}
+                  {locationConsent === 'asking' && (
+                    <div
+                      role="dialog"
+                      aria-labelledby="loc-consent-title"
+                      className="mb-3 flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl"
+                    >
+                      <MapPin className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" aria-hidden="true" />
+                      <div className="flex-1 min-w-0">
+                        <p id="loc-consent-title" className="text-sm font-semibold text-blue-900">
+                          Enable live location tracking?
+                        </p>
+                        <p className="text-xs text-blue-700 mt-0.5">
+                          Your GPS coordinates are sent to our server to detect your ward.
+                          Location is <strong>never stored</strong> and only used for this report.
+                        </p>
+                        <div className="flex gap-2 mt-3">
+                          <button
+                            type="button"
+                            onClick={handleConsentAllow}
+                            className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            Allow &amp; Track
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleConsentDismiss}
+                            className="px-3 py-1.5 text-blue-700 text-xs font-medium hover:bg-blue-100 rounded-lg transition-colors"
+                          >
+                            Not now
+                          </button>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleConsentDismiss}
+                        aria-label="Dismiss"
+                        className="text-blue-400 hover:text-blue-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Live tracking status */}
+                  {realTimeLocation.status === 'tracking' && realTimeLocation.result && (
+                    <div className="mb-3 flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
+                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" aria-hidden="true" />
+                      <span>
+                        Live tracking · accuracy ±{Math.round(realTimeLocation.result.accuracy)}m
+                      </span>
+                      <button
+                        type="button"
+                        onClick={realTimeLocation.stop}
+                        className="ml-auto text-red-500 hover:text-red-700 font-medium"
+                        aria-label="Stop location tracking"
+                      >
+                        Stop
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Location error */}
+                  {realTimeLocation.status === 'error' && realTimeLocation.error && (
+                    <p className="mb-3 text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">
+                      {realTimeLocation.error}
+                    </p>
+                  )}
+
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -847,16 +905,24 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
                     />
                     <button
                       type="button"
-                      onClick={fetchLocation}
-                      disabled={locationLoading}
-                      title="Use my current location"
-                      className="flex items-center gap-2 px-4 py-3 bg-green-50 border-2 border-green-200 text-green-700 rounded-xl hover:bg-green-100 transition-colors disabled:opacity-60"
+                      onClick={handleAutoDetectClick}
+                      disabled={realTimeLocation.status === 'requesting'}
+                      title={realTimeLocation.status === 'tracking' ? 'Stop tracking' : 'Use my current location'}
+                      className={`flex items-center gap-2 px-4 py-3 border-2 rounded-xl transition-colors disabled:opacity-60 ${
+                        realTimeLocation.status === 'tracking'
+                          ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100'
+                          : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
+                      }`}
                     >
-                      {locationLoading
+                      {realTimeLocation.status === 'requesting'
                         ? <Loader2 className="w-5 h-5 animate-spin" />
                         : <MapPin className="w-5 h-5" />}
                       <span className="text-sm font-medium hidden sm:inline">
-                        {locationLoading ? 'Fetching…' : 'Auto-detect'}
+                        {realTimeLocation.status === 'tracking'
+                          ? 'Stop'
+                          : realTimeLocation.status === 'requesting'
+                            ? 'Fetching…'
+                            : 'Auto-detect'}
                       </span>
                     </button>
                   </div>
