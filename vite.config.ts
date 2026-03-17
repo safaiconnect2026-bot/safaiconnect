@@ -15,7 +15,11 @@ export default defineConfig({
         name: 'SafaiConnect',
         short_name: 'Safai',
         description: 'Smart Waste Management System',
-        theme_color: '#ffffff',
+        start_url: '/',
+        display: 'standalone',
+        background_color: '#ffffff',
+        theme_color: '#059669',
+        orientation: 'portrait',
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -25,7 +29,8 @@ export default defineConfig({
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       }

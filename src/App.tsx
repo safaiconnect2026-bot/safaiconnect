@@ -13,6 +13,7 @@ import { useAuth } from './contexts/AuthContext';
 import { auth } from './lib/firebase';
 import { signOut } from 'firebase/auth';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import InstallBanner from './components/InstallBanner';
 
 export type UserRole = 'superadmin' | 'admin' | 'zonal-admin' | 'green-champion' | 'worker' | 'citizen';
 
@@ -188,6 +189,7 @@ function App() {
         </div>
       </div>
       <SpeedInsights />
+      <InstallBanner />
     </ThemeProvider>
   );
 }
