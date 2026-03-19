@@ -131,6 +131,16 @@ const CitizenDashboard: React.FC<CitizenDashboardProps> = ({ user, onLogout, isC
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wardDetection.detected]);
 
+  // Pre-fill city/zone/ward from user profile when report tab opens
+  React.useEffect(() => {
+    if (activeTab !== 'report') return;
+    if (wardDetection.detected || locationSelector.selectedCityId) return;
+    if (!user.cityId || !user.zoneId || !user.wardId) return;
+    locationSelector.applyAutoDetected(user.cityId, user.zoneId, user.wardId);
+    setManualWardMode(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
   // ── Draft key is per-user so different accounts don't share drafts ──────
   const DRAFT_KEY = `draft_complaint_${user?.id}`;
   const [submitSuccess, setSubmitSuccess] = useState('');
